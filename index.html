@@ -107,7 +107,8 @@ input[type=range]{width:100%;accent-color:var(--lamp);height:28px;}
 .info .ttl div{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
 .small{background:var(--raise);border:1px solid var(--line);border-radius:7px;height:32px;padding:0 10px;font-size:12px;}
 .small.sell,.sec.sell{color:var(--blood);}
-.ups{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.ups{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.ups .up{padding:6px 6px;}.ups .up b{font-size:12px;}.ups .up .d{font-size:10px;}.ups .up .c{font-size:11px;}
 .up{background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:6px 8px;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:0;}
 .up .k{font-size:10px;color:var(--muted);letter-spacing:.06em;}
 .up b{font-size:13px;}
@@ -302,7 +303,7 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
     <h3>ゾンビ</h3><div class="spgrid" id="spZ"></div>
     <h3>ボス</h3><div class="spgrid" id="spB"></div>
     <h3>ゾンビの建物</h3><div class="spgrid" id="spS"></div>
-    <p>選んだあと、盤面をタップした場所に出ます。</p>
+    <p>選んだあと、盤面をタップした場所に出ます。長押しすると出し続けます。</p>
     <button class="sec" id="spClose">閉じる</button>
   </div>
 </div>
@@ -318,15 +319,15 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 <div class="ov" id="ovHelp" hidden>
   <div class="card">
     <h2>遊び方</h2>
-    <p>下のパネルでタワーか塀を選び、マスをタップして配置します。置いたタワーをタップすると、強化や売却ができます。強化は6段階で、各段階で2つの強化から1つを選びます。強化ボタンの下の「一斉強化」をオンにすると、同じ種類・同じ段階のタワーや塀をまとめて同じ強化にできます（コインが足りる分だけ）。オンの間に盤面の同じタワーをタップすると、強化する・しないを1台ずつ切り替えられます。何も選んでいない状態で盤面を指でなぞると四角で囲めて、囲んだタワーをまとめて一斉強化の対象にできます。</p>
+    <p>下のパネルでタワーか塀を選び、マスをタップして配置します。置いたタワーをタップすると、強化や売却ができます。強化は6段階で、各段階で3つの強化から1つを選びます。強化ボタンの下の「一斉強化」をオンにすると、同じ種類・同じ段階のタワーや塀をまとめて同じ強化にできます（コインが足りる分だけ）。オンの間に盤面の同じタワーをタップすると、強化する・しないを1台ずつ切り替えられます。何も選んでいない状態で盤面を指でなぞると四角で囲めて、囲んだタワーをまとめて一斉強化の対象にできます。</p>
     <p>ウェーブの合間に自動で保存され、タイトルの「続きから」で再開できます（このブラウザだけに保存されます。ウェーブの途中でやめた場合は、その直前の合間から再開します）。</p>
     <p>速度ボタンを長押しすると10倍速になります。もう一度タップすると元の速度に戻ります。</p>
     <p>盤面の下にある「×1」ボタンを押すたびに、ゲーム速度が ×1 → ×2 → ×3 と切り替わります。右上の ⚙ ボタンでは、BGMと効果音の音量を変えられます。</p>
-    <p>クリエイティブでは、盤面の下の「敵」ボタンから好きなゾンビ・ボス・ゾンビの建物を選び、盤面をタップした場所に出せます。</p>
+    <p>クリエイティブでは、盤面の下の「敵」ボタンから好きなゾンビ・ボス・ゾンビの建物を選び、盤面をタップした場所に出せます。長押しすると、指を離すまで出し続けます（指を動かすと出す場所も動きます）。</p>
     <p>「はじめる」を押すと難易度を選べます（かんたん・ふつう・むずかしい・クリエイティブ）。クリエイティブはコインが足りなくても置けて（所持コインはマイナスになっていきます）、町の体力が減らず、ランキングには登録されません。</p>
     <p>左上の「町の体力」をタップすると、1000コインで体力が1回復します（最大30まで）。</p>
     <p>ゾンビは上端の出現口（建築できません）の横10列から現れ、自由に道を探しながら、だんだん町（下端）の真ん中へ集まってきます。道が塞がれていれば、建物を壊して進みます。町に入られると体力が減り、0になると終了です。</p>
-    <p>タワーは強化するたびに見た目が変わります。1・3・5段目に付く部品のランプの色で、選んだ強化が分かります（A＝オレンジ、B＝青）。</p>
+    <p>タワーは強化するたびに見た目が変わります。1・3・5段目に付く部品のランプの色で、選んだ強化が分かります（A＝オレンジ、B＝青、C＝緑）。</p>
     <p>身代わり人形は、点線の輪の中にいるゾンビを引き寄せて、自分を攻撃させます。塀と組み合わせると、ゾンビを足止めしやすくなります。</p>
     <p>塀やタワーを選んだまま、空いているマスを長押しすると黄色い線が出ます。指を動かして線を伸ばし、離すと線の上のマスにまとめて置けます（コインが足りる分だけ）。置いたものを強化するときは、もう一度ボタンを押して選択を外してからタップしてください。</p>
     <p>塀も6段階まで強化できます（鉄板・トゲ・電気柵・地雷など）。</p>
@@ -436,6 +437,46 @@ UPS.wall=[[U('鉄板補強','耐久 +120',s=>s.hp+=120),U('有刺鉄線','かじ
   [U('鋼鉄の壁','耐久 +250',s=>s.hp+=250),U('電気柵','かじってきた敵を20%の確率で1秒スタン',s=>s.zap=.2)],
   [U('多層装甲','被ダメージをさらに −25%',s=>s.selfArmor=1-(1-s.selfArmor)*.75),U('再生装甲','毎秒 耐久10 回復',s=>s.regen+=10)],
   [U('要塞壁','耐久 ×2',s=>s.hp*=2),U('地雷埋設','壊されると周囲1.5マスに大爆発',s=>s.boom=1)]];
+/* third choice (C) for every stage of every tower and the wall */
+const UPC={
+  rapid:[U('照準器','射程 +0.4・攻撃力 ×1.15',s=>{s.range+=.4;s.dmg*=1.15}),U('強装弾','攻撃力 ×1.2',s=>s.dmg*=1.2),
+    U('吸血弾','与えたダメージの5%を回復',s=>s.lifesteal=.05),U('重機関銃','攻撃力 ×1.4',s=>s.dmg*=1.4),
+    U('対ボス弾','ボスへのダメージ ×2',s=>s.boss=Math.max(s.boss,1)),U('処刑弾','体力10%以下の敵を即撃破（ボス以外）',s=>s.execute=Math.max(s.execute,.1))],
+  power:[U('軽量砲','攻撃間隔 −10%・射程 +0.3',s=>{s.rate*=.9;s.range+=.3}),U('焼夷砲弾','命中した敵が燃える（6/秒・3秒）',s=>{s.burnDps=Math.max(s.burnDps,6);s.burnDur=Math.max(s.burnDur,3)}),
+    U('高速弾','攻撃間隔 −15%',s=>s.rate*=.85),U('処刑弾','体力10%以下の敵を即撃破（ボス以外）',s=>s.execute=Math.max(s.execute,.1)),
+    U('重装砲座','耐久 +120・被ダメージ −15%',s=>{s.hp+=120;s.selfArmor=Math.max(s.selfArmor,.15)}),U('終末砲','攻撃力 ×1.8・攻撃間隔 +30%',s=>{s.dmg*=1.8;s.rate*=1.3})],
+  burn:[U('毒の矢','攻撃力 ×2',s=>s.dmg*=2),U('防毒装甲','耐久 +80',s=>s.hp+=80),
+    U('麻痺毒','毒の敵を15%減速',s=>s.slow=Math.max(s.slow,.15)),U('溶解液','着弾範囲 +0.6',s=>s.splash=(s.splash||0)+.6),
+    U('高速散布','攻撃間隔 −35%',s=>s.rate*=.65),U('三連ノズル','同時に3体へ撃つ',s=>s.multi=3)],
+  chain:[U('帯電装甲','かじってきた敵を10%の確率で1秒スタン',s=>s.zap=.1),U('強化コイル','攻撃力 ×1.3',s=>s.dmg*=1.3),
+    U('吸電','与えたダメージの5%を回復',s=>s.lifesteal=.05),U('雷撃加速','攻撃間隔 −20%',s=>s.rate*=.8),
+    U('落雷','攻撃力 ×1.3・射程 +0.4',s=>{s.dmg*=1.3;s.range+=.4}),U('雷の裁き','体力10%以下の敵を即撃破（ボス以外）',s=>s.execute=Math.max(s.execute,.1))],
+  slow:[U('冷却砲身','攻撃間隔 −20%',s=>s.rate*=.8),U('氷の装甲','耐久 +80・被ダメージ −15%',s=>{s.hp+=80;s.selfArmor=Math.max(s.selfArmor,.15)}),
+    U('長期凍結','減速の持続 +2秒',s=>s.slowDur+=2),U('霜の棘','攻撃力 ×1.8・減速 +5%',s=>{s.dmg*=1.8;s.slow+=.05}),
+    U('永久凍土','凍らせる確率 +10%・減速の持続 +1秒',s=>{s.freeze+=.1;s.slowDur+=1}),U('氷の牢獄','凍らせる確率 +10%・攻撃間隔 −15%',s=>{s.freeze+=.1;s.rate*=.85})],
+  weak:[U('呪いの釘','攻撃力 ×1.5',s=>s.dmg*=1.5),U('結界','耐久 +100・被ダメージ −15%',s=>{s.hp+=100;s.selfArmor=Math.max(s.selfArmor,.15)}),
+    U('呪いの延長','呪いの持続 +3秒',s=>s.weakDur+=3),U('吸魂','与えたダメージの10%を回復',s=>s.lifesteal=.1),
+    U('高速詠唱','発動間隔 −20%',s=>s.rate*=.8),U('死神の呪い','体力12%以下の敵を即撃破（ボス以外）',s=>s.execute=Math.max(s.execute,.12))],
+  melee:[U('頑丈な台座','耐久 +60・被ダメージ −10%',s=>{s.hp+=60;s.selfArmor=Math.max(s.selfArmor,.1)}),U('研ぎ澄まし','攻撃力 ×1.3・攻撃間隔 −10%',s=>{s.dmg*=1.3;s.rate*=.9}),
+    U('帯電装甲','かじってきた敵を10%の確率で1秒スタン',s=>s.zap=.1),U('粘着油','かじってきた敵を40%減速',s=>s.wslow=.4),
+    U('鋼の刃','攻撃力 ×1.4',s=>s.dmg*=1.4),U('不屈の砦','一度だけ、壊れても耐久半分で復活',s=>s.revive=s.revive===true?true:.5)],
+  flame:[U('耐熱装甲','耐久 +60・被ダメージ −10%',s=>{s.hp+=60;s.selfArmor=Math.max(s.selfArmor,.1)}),U('速燃焼','攻撃間隔 −20%',s=>s.rate*=.8),
+    U('火炎装甲','かじってきた敵に40%を反射',s=>s.thorns=Math.max(s.thorns,.4)),U('火炎旋風','炎の幅が少し広がる・射程 +0.3',s=>{s.cone+=.2;s.range+=.3}),
+    U('灼熱','攻撃力 ×1.4',s=>s.dmg*=1.4),U('最後の業火','壊れると周囲2マスに大爆発',s=>{s.boom=1;s.boomR=2})],
+  crusher:[U('高速回転','攻撃間隔 −10%',s=>s.rate*=.9),U('頑丈な台','耐久 +120',s=>s.hp+=120),
+    U('回転強化','攻撃力 ×1.3',s=>s.dmg*=1.3),U('解体ドリル','建物へのダメージ ×1.3',s=>s.sdmg*=1.3),
+    U('二枚刃','同時に2枚飛ばす',s=>s.multi=Math.max(s.multi,2)),U('巨大回転刃','攻撃力 ×1.4・刃 +30%',s=>{s.dmg*=1.4;s.blade+=.3})],
+  decoy:[U('頑丈な芯','受けるダメージ −15%',s=>s.selfArmor=Math.max(s.selfArmor,.15)),U('電気仕掛け','かじってきた敵を15%の確率で1秒スタン',s=>s.zap=Math.max(s.zap,.15)),
+    U('わら追加','耐久 +400',s=>s.hp+=400),U('トゲだらけ','かじってきた敵への反射 +60%',s=>s.thorns+=.6),
+    U('ねばねば','かじってきた敵を60%減速',s=>s.wslow=Math.max(s.wslow,.6)),U('鉄の人形','耐久 ×2・受けるダメージ −20%',s=>{s.hp*=2;s.selfArmor=1-(1-s.selfArmor)*.8})],
+  repair:[U('頑丈な工房','耐久 +60・修理量 ×1.2',s=>{s.hp+=60;s.heal*=1.2}),U('広域修理','射程 +0.6',s=>s.range+=.6),
+    U('鼓舞の旗','範囲内のタワーの攻撃力 +15%',s=>s.buff=Math.max(s.buff,.15)),U('防護結界','範囲内の被ダメージ −20%',s=>s.armor=Math.max(s.armor,.2)),
+    U('超修理','修理量 ×1.6',s=>s.heal*=1.6),U('守護神','範囲内の被ダメージ −15%・攻撃力 +15%',s=>{s.armor=Math.max(s.armor,.15);s.buff=Math.max(s.buff,.15)})],
+  wall:[U('木の補強','耐久 +60・被ダメージ −10%',s=>{s.hp+=60;s.selfArmor=Math.max(s.selfArmor,.1)}),U('電線','かじってきた敵を10%の確率で1秒スタン',s=>s.zap=Math.max(s.zap,.1)),
+    U('補修材','毎秒 耐久5 回復',s=>s.regen+=5),U('トゲの壁','かじってきた敵への反射 +35%',s=>s.thorns+=.35),
+    U('スパイク強化','隣の敵に毎秒15ダメージ',s=>s.spike+=15),U('不落の壁','一度だけ、壊れても耐久半分で復活',s=>s.revive=s.revive===true?true:.5)],
+};
+for(const k in UPC)UPC[k].forEach((u,i)=>UPS[k][i].push(u));
 const UPMUL=[.6,.9,1.2,1.6,2.8,4.2];
 const upCost=(k,stage)=>Math.round((k==='wall'?WALL.cost:TD[k].cost)*UPMUL[stage]/5)*5;
 
@@ -527,7 +568,7 @@ function removeB(b){
   G.grid[b.r*COLS+b.c]=null;b.dead=true;if(UI.sel===b)UI.sel=null;computeDist();
 }
 function destroyB(b){
-  if(b.s.revive&&!b.revived){b.revived=true;b.hp=b.maxHp;addFx({t:'ring',x:b.x,y:b.y,r:.9,life:.6,max:.6,col:'#f0c046'});addFx({t:'txt',x:b.x,y:b.y-.4,s:'復活！',life:1,max:1,col:'#f0c046'});snd('heal');return;}
+  if(b.s.revive&&!b.revived){b.revived=true;b.hp=b.maxHp*(b.s.revive===true?1:b.s.revive);addFx({t:'ring',x:b.x,y:b.y,r:.9,life:.6,max:.6,col:'#f0c046'});addFx({t:'txt',x:b.x,y:b.y-.4,s:'復活！',life:1,max:1,col:'#f0c046'});snd('heal');return;}
   snd('destroy');
   if(b.s.boom){const R0=b.s.boomR||1.5,dmg=120*scaleHp(G.wave)*(R0>1.5?1.5:1);for(const e of foes())if(!e.dead&&Math.hypot(e.x-b.x,e.y-b.y)<=R0+e.r*.5)damage(e,dmg,null);
     addFx({t:'boom',x:b.x,y:b.y,life:.6,max:.6,col:'#ff9b3d',big:1});addFx({t:'ring',x:b.x,y:b.y,r:R0,life:.45,max:.45,col:'#ffcf6b'});snd('power');}
@@ -994,7 +1035,7 @@ function drawTurret(b){
 /* extra hardware that appears at upgrade stages 2, 4 and 6, on top of each tower's base design */
 /* parts for upgrade stages 1, 3 and 5. The light colour shows which option was picked at that stage: A = orange, B = blue */
 function drawOddParts(b,lv,a,rec,col,dk,lt){
-  const u=b.ups,ac=i=>u[i]===0?'#ff7a3d':'#5ec8ff',pulse=.5+.5*Math.sin(G.t*4+b.id),light=(x,y,r,c)=>{ctx.fillStyle=c;ctx.globalAlpha=.55+.45*pulse;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.globalAlpha=1;};
+  const u=b.ups,ac=i=>u[i]===0?'#ff7a3d':u[i]===1?'#5ec8ff':'#7ee05a',pulse=.5+.5*Math.sin(G.t*4+b.id),light=(x,y,r,c)=>{ctx.fillStyle=c;ctx.globalAlpha=.55+.45*pulse;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill();ctx.globalAlpha=1;};
   const rot=['rapid','power','burn','slow','flame','crusher'].includes(b.kind);if(rot)ctx.rotate(a);
   switch(b.kind){
     case'rapid':
@@ -1413,7 +1454,7 @@ function statLine(b){
 }
 function panel(){
   if(UI.spawn&&isCreative()){const k2='sp'+UI.spawn.k+UI.spawn.n+UI.spawn.elite;if(k2===UI.panelKey)return;UI.panelKey=k2;
-    $('panel').innerHTML=`<div class="info"><div class="top"><div class="ttl"><b>${UI.spawn.elite?'精鋭の':''}${UI.spawn.name}</b><div>盤面をタップした場所に${UI.spawn.g==='s'?'建てます':UI.spawn.n+'体出します'}。続けて何回でも出せます</div></div>
+    $('panel').innerHTML=`<div class="info"><div class="top"><div class="ttl"><b>${UI.spawn.elite?'精鋭の':''}${UI.spawn.name}</b><div>盤面をタップした場所に${UI.spawn.g==='s'?'建てます':UI.spawn.n+'体出します'}。長押しすると出し続けます</div></div>
       <button class="small" data-a="spchange">変える</button><button class="small sell" data-a="spstop">やめる</button></div></div>`;return;}
   const sel=UI.sel&&!UI.sel.dead?UI.sel:null;
   const key=sel?`s${sel.id}:${sel.ups.join('')}:${sel.ups.length<6?buyN(upCost(sel.kind,sel.ups.length)):0}:${UI.bulk?bulkMates(sel).length+'/'+bulkTargets(sel).length:'x'}`:
@@ -1428,7 +1469,7 @@ function panel(){
       if(sel.ups.length)h+=`<div class="path">${sel.ups.map((c,i)=>`<span>${i+1}. ${UPS[sel.kind][i][c].n}</span>`).join('')}</div>`;
       const st=sel.ups.length;
       if(st<6){const cost=upCost(sel.kind,st),all=bulkMates(sel).length,mates=bulkTargets(sel).length,bulk=UI.bulk&&all>1,can=Math.min(mates,buyN(cost));
-        h+=`<div class="ups">${['A','B'].map((c,i)=>{const u=UPS[sel.kind][st][i];
+        h+=`<div class="ups">${['A','B','C'].map((c,i)=>{const u=UPS[sel.kind][st][i];
         return`<button class="up" data-a="up" data-c="${i}" ${!afford(cost)?'disabled':''}><span class="k">強化 ${st+1}/6 · ${c}</span><b>${u.n}</b><span class="d">${u.d}</span><span class="c">${bulk?`${Math.max(can,0)}/${mates}台 · ${cost*Math.max(can,1)} コイン`:`${cost} コイン`}</span></button>`;}).join('')}</div>`;
         h+=`<button class="bulk${UI.bulk?' on':''}" data-a="bulk"><span class="sw"></span>一斉強化 <small>${all>1?(UI.bulk?`${mates}/${all}台を選択中`:`同じ段階の${t.name}${sel.kind==='wall'?'':'タワー'} ${all}台`):'同じ段階の仲間がいません'}</small></button>${UI.bulk&&all>1?`<div class="bhint">盤面をなぞって囲むか、同じタワーをタップして選べます</div>`:''}`;}
       else h+=`<div class="maxed">最大強化に到達</div>`;
@@ -1496,7 +1537,12 @@ cv.addEventListener('lostpointercapture',ev=>{if(LN.on&&ev.pointerId===LN.id)end
 cv.addEventListener('pointerdown',ev=>{
   if(!G||G.over)return;const r=cv.getBoundingClientRect();
   const[c,row]=cellOf(ev);
-  if(UI.spawn&&isCreative()){if(c>=0&&c<COLS&&row>=0&&row<ROWS)doSpawn((ev.clientX-r.left)/S,(ev.clientY-r.top)/S);return;}
+  if(UI.spawn&&isCreative()){if(c<0||c>=COLS||row<0||row>=ROWS)return;
+    const x=(ev.clientX-r.left)/S,y=(ev.clientY-r.top)/S;doSpawn(x,y);
+    // keep holding to keep spawning (and drag to move where they appear)
+    clearTimeout(SPH.t);clearInterval(SPH.iv);Object.assign(SPH,{on:true,id:ev.pointerId,x,y});try{cv.setPointerCapture(ev.pointerId);}catch(e){}
+    SPH.t=setTimeout(()=>{if(!SPH.on)return;SPH.iv=setInterval(()=>{if(!SPH.on||!UI.spawn||!G||G.over){stopSpawnHold();return;}doSpawn(SPH.x,SPH.y,true);},UI.spawn.g==='s'?260:140);},380);
+    return;}
   if(c<0||c>=COLS||row<0||row>=ROWS){UI.sel=null;UI.panelKey='';panel();return;}
   const b=cellB(c,row);
   if(UI.kind&&!b){if(LN.on)return;Object.assign(LN,{on:true,line:false,id:ev.pointerId,c0:c,r0:row,c1:c,r1:row});try{cv.setPointerCapture(ev.pointerId);}catch(e){}
@@ -1544,6 +1590,12 @@ function drawBox(){if(!BX.on||!BX.box||!G)return;const[x0,y0,x1,y1]=boxRect(),g=
   const label=g?`${(g.lead.kind==='wall'?WALL:TD[g.lead.kind]).name} ${g.list.length}台`:'強化できるものがない',lx=Math.min(COLS-1.6,Math.max(1.6,(x0+x1+1)/2)),ly=y0>0?y0-.3:y1+1.4;
   ctx.fillStyle='rgba(16,14,12,.85)';rr(lx-1.5,ly-.32,3,.5,.14);ctx.fill();txt(label,lx,ly,.3,g?'#ffd640':'#e0503f','center','"Zen Kaku Gothic New",sans-serif');}
 cv.addEventListener('contextmenu',ev=>ev.preventDefault());
+/* creative: long-press keeps spawning the chosen enemy */
+const SPH={on:false,id:null,x:0,y:0,t:0,iv:0};
+function stopSpawnHold(){SPH.on=false;clearTimeout(SPH.t);clearInterval(SPH.iv);}
+cv.addEventListener('pointermove',ev=>{if(!SPH.on||ev.pointerId!==SPH.id)return;const r=cv.getBoundingClientRect();
+  SPH.x=Math.max(.05,Math.min(COLS-.05,(ev.clientX-r.left)/S));SPH.y=Math.max(.05,Math.min(ROWS-.05,(ev.clientY-r.top)/S));});
+['pointerup','pointercancel','lostpointercapture'].forEach(n=>cv.addEventListener(n,ev=>{if(SPH.on&&ev.pointerId===SPH.id)stopSpawnHold();}));
 
 /* ---------- creative: spawn any enemy ---------- */
 const SPZ=[['runner','ランナー'],['tank','ブロート'],['claw','クロウ'],['butcher','ブッチャー'],['healer','シャーマン'],['spitter','スピッター'],['builder','ビルダー'],['larva','ちびゾンビ']];
@@ -1567,8 +1619,8 @@ $('spElite').onclick=()=>{SPO.elite=!SPO.elite;$('spElite').textContent='精鋭�
 $('spCount').onclick=ev=>{const bt=ev.target.closest('[data-n]');if(!bt)return;SPO.n=+bt.dataset.n;document.querySelectorAll('#spCount button').forEach(x=>x.classList.toggle('on',x===bt));};
 ['spZ','spB','spS'].forEach(id=>$(id).onclick=ev=>{const bt=ev.target.closest('.spit');if(!bt)return;const all=SPZ.concat(SPB,SPS),name=(all.find(a=>a[0]===bt.dataset.k)||[])[1];
   UI.spawn={g:bt.dataset.g,k:bt.dataset.k,name,elite:SPO.elite,n:bt.dataset.g==='s'?1:SPO.n};UI.kind=null;UI.sel=null;closeSpawn();snd('tick');UI.panelKey='';panel();});
-function doSpawn(x,y){const sp=UI.spawn;if(!sp)return;const c=Math.floor(x),r=Math.floor(y);
-  if(sp.g==='s'){if(r<1||r>ROWS-2||cellB(c,r)||zAt(c,r)){snd('err');addFx({t:'txt',x:c+.5,y:r+.5,s:'置けない',life:.7,max:.7,col:'#e0503f'});return;}
+function doSpawn(x,y,quiet){const sp=UI.spawn;if(!sp)return;const c=Math.floor(x),r=Math.floor(y);
+  if(sp.g==='s'){if(r<1||r>ROWS-2||cellB(c,r)||zAt(c,r)){if(quiet)return;snd('err');addFx({t:'txt',x:c+.5,y:r+.5,s:'置けない',life:.7,max:.7,col:'#e0503f'});return;}
     if(sp.k==='mega'){const pw=sp.elite?1.5:1;makeMega(c,r,pw,5*500*.8*scaleHp(Math.max(1,G.wave))*1.5*(1+(pw-1)*1.6));addFx({t:'ring',x:c+.5,y:r+.5,r:2,life:.6,max:.6,col:'#ff3b2b'});snd('boss');return;}
     if(sp.k==='base'){const pw=sp.elite?1.5:1,hp=500*.8*scaleHp(Math.max(1,G.wave))*(1+(pw-1)*1.6);G.zs.push({struct:true,t:'base',c,row:r,x:c+.5,y:r+.5,r:.6,hp,maxHp:hp,dead:false,hit:0,cd:3,spawned:0,col:'#7a2e2a',rew:750,boss:false,pw,elite:sp.elite,
       burn:null,slowA:0,slowT:0,stunT:0,weakA:0,weakT:0,vulnW:0,born:G.t,roots:[]});addFx({t:'ring',x:c+.5,y:r+.5,r:1.2,life:.5,max:.5,col:'#e0503f'});snd('boss');checkMega();}
@@ -1813,8 +1865,14 @@ async function submitScore(){
 }
 
 /* ---------- update log ---------- */
-const VERSION='1.1';
+const VERSION='1.2';
 const NEWS=[
+  {v:'1.2',d:'2026年10月24日',items:[
+    '<b>強化が3択に</b>：すべてのタワーと塀に、新しい強化「C」を追加しました。各段階でA・B・Cの3つから選べます（Cを選んだ部品のランプは緑色）',
+    '<b>難易度の選び方</b>：難易度をタップすると候補が開き、選んでから「はじめる」でスタートする形になりました',
+    '<b>クリエイティブのコイン</b>：0コインから始まり、使うとマイナスになっていきます。コインが足りなくても置けます',
+    '<b>敵を長押しで出す</b>：クリエイティブで盤面を長押しすると、指を離すまで敵を出し続けます',
+    '<b>遊び方が見やすく</b>：遊び方の画面を横に広げ、説明を丁寧語にしました']},
   {v:'1.1',d:'2026年10月19日',items:[
     '<b>線状設置</b>：塀やタワーを選んで空いたマスを長押しすると、黄色い線が出ます。指を動かして線を伸ばし、離すと線の上にまとめて置けます',
     '<b>一斉強化</b>：強化ボタンの下のスイッチをオンにすると、同じ種類・同じ段階のタワーをまとめて強化できます。盤面を指でなぞって囲むか、1台ずつタップして、強化するタワーを選べます',
