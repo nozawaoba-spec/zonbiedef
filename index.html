@@ -250,6 +250,10 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 .nit[open]>summary{color:var(--lamp);}
 .nit p{margin:0;padding:0 10px 10px;font-size:12px;line-height:1.6;color:var(--muted);}
 .nhint{font-size:11px!important;opacity:.7;text-align:center;}
+.rtabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;background:var(--night);border-radius:10px;}
+.rtabs button{border:0;border-radius:7px;padding:8px 4px;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+.rtabs button.on{background:var(--raise);color:var(--ink);box-shadow:inset 0 -2px 0 var(--lamp);}
+.rtabs button[data-d=easy].on{color:#7fe0a0;}.rtabs button[data-d=normal].on{color:var(--lamp);}.rtabs button[data-d=hard].on{color:var(--blood);}
 </style>
 </head>
 <body>
@@ -318,6 +322,7 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 <div class="ov" id="ovRank" hidden>
   <div class="card">
     <h2>オンラインランキング</h2>
+    <div class="rtabs" id="rTabs" role="tablist"><button data-d="easy" role="tab">かんたん</button><button data-d="normal" role="tab">ふつう</button><button data-d="hard" role="tab">むずかしい</button></div>
     <div class="note" id="rNote">読み込み中…</div>
     <ol class="rank" id="rList"></ol>
     <button class="sec" id="rClose">閉じる</button>
@@ -1955,33 +1960,38 @@ const SUPA={url:'https://qhtrsfbyqqptqpjypevn.supabase.co',key:'sb_publishable_K
 const supaOn=()=>!window.claude&&SUPA.url&&SUPA.key;
 const supaH=()=>Object.assign({apikey:SUPA.key,'Content-Type':'application/json'},SUPA.key.startsWith('eyJ')?{Authorization:'Bearer '+SUPA.key}:{});
 const playerId=(()=>{let id=LS.get('ztd.pid','');if(!id){id='p'+Math.random().toString(36).slice(2)+Date.now().toString(36);LS.set('ztd.pid',id);}return id;})();
-async function supaLoad(){const r=await fetch(`${SUPA.url}/rest/v1/scores?select=name,score,wave,diff,player&order=score.desc&limit=300`,{headers:supaH()});if(!r.ok)throw new Error(r.status);
-  const rows=await r.json(),best=new Map();for(const v of rows){if(!best.has(v.player))best.set(v.player,v);}return [...best.values()].slice(0,50);}
+async function supaLoad(){const r=await fetch(`${SUPA.url}/rest/v1/scores?select=name,score,wave,diff,player&order=score.desc&limit=2000`,{headers:supaH()});if(!r.ok)throw new Error(r.status);
+  const rows=await r.json(),out={easy:[],normal:[],hard:[]},seen=new Set();
+  for(const v of rows){const d=out[v.diff]?v.diff:'normal',k=d+'|'+v.player;if(seen.has(k))continue;seen.add(k);if(out[d].length<50)out[d].push({...v,me:v.player===playerId});}return out;}
 async function supaSubmit(name){const r=await fetch(`${SUPA.url}/rest/v1/scores`,{method:'POST',headers:{...supaH(),Prefer:'return=minimal'},
   body:JSON.stringify({name,score:Math.floor(G.score),wave:G.wave,diff:G.diff,player:playerId})});if(!r.ok)throw new Error(r.status);}
 function rankRow(L,i,v,me){const li=document.createElement('li');if(me)li.className='me';
   const n=document.createElement('span');n.className='n';n.textContent=i+1;
   const nm=document.createElement('span');nm.className='nm';nm.textContent=String(v.name||'名無し').slice(0,12);
-  const sc=document.createElement('span');sc.className='sc';sc.textContent=fmt(v.score||0);const sm=document.createElement('small');sm.textContent=(v.diff&&DIFF[v.diff]&&v.diff!=='normal'?DIFF[v.diff].name+' · ':'')+'W'+(v.wave||0);sc.appendChild(sm);
+  const sc=document.createElement('span');sc.className='sc';sc.textContent=fmt(v.score||0);const sm=document.createElement('small');sm.textContent='W'+(v.wave||0);sc.appendChild(sm);
   li.append(n,nm,sc);L.appendChild(li);}
+/* ranking by difficulty: rows are loaded once per opening, tabs just switch which list is shown */
+const RKV={tab:'normal',data:null,note:''};
+function showRankTab(d){RKV.tab=d;document.querySelectorAll('#rTabs button').forEach(b=>{const on=b.dataset.d===d;b.classList.toggle('on',on);b.setAttribute('aria-selected',on);});
+  const L=$('rList'),N=$('rNote');L.innerHTML='';if(!RKV.data){N.textContent=RKV.note;return;}
+  const rows=RKV.data[d]||[];N.textContent=(rows.length?`${DIFF[d].name}の上位 ${rows.length} 名`:`${DIFF[d].name}の記録はまだありません。最初の記録を残しましょう。`)+(RKV.note?' · '+RKV.note:'');
+  rows.forEach((v,i)=>rankRow(L,i,v,v.me));}
+$('rTabs').onclick=ev=>{const b=ev.target.closest('[data-d]');if(b){snd('tick');showRankTab(b.dataset.d);}};
 async function loadRanking(){
-  if(supaOn()){$('ovRank').hidden=false;const L=$('rList'),N=$('rNote');L.innerHTML='';N.textContent='読み込み中…';
-    try{const rows=await supaLoad();if(!rows.length){N.textContent='まだ記録がありません。最初の記録を残しましょう。';return;}N.textContent='上位 '+rows.length+' 名';rows.forEach((v,i)=>rankRow(L,i,v,v.player===playerId));}
-    catch(e){N.textContent='ランキングを読み込めませんでした。通信状態を確かめて開き直してください。';}return;}
-  $('ovRank').hidden=false;const L=$('rList'),N=$('rNote');L.innerHTML='';N.textContent='読み込み中…';
+  $('ovRank').hidden=false;RKV.data=null;RKV.note='読み込み中…';const start=DIFF[UI.diff]&&!DIFF[UI.diff].creative?UI.diff:'normal';showRankTab(start);
+  if(supaOn()){try{RKV.data=await supaLoad();RKV.note='';}catch(e){RKV.note='ランキングを読み込めませんでした。通信状態を確かめて開き直してください。';}showRankTab(RKV.tab);return;}
   for(let i=0;i<40&&!RK.ready;i++)await new Promise(r=>setTimeout(r,250));
-  if(!RK.db){N.textContent=(WHY[RK.why]||'オンラインランキングに接続できませんでした。開き直してください。')+' この端末の自己ベスト：'+fmt(LS.get('ztd.best',0));return;}
+  if(!RK.db){RKV.note=(WHY[RK.why]||'オンラインランキングに接続できませんでした。開き直してください。')+' この端末の自己ベスト：'+fmt(LS.get('ztd.best',0));showRankTab(RKV.tab);return;}
   try{
-    const snap=await RK.db.collection('scores').orderBy('score','desc').limit(50).get();
-    const tail=RK.why==='readonly'?' · '+WHY.readonly:'';
-    if(snap.empty){N.textContent='まだ記録がありません。最初の記録を残しましょう。'+tail;return;}
-    N.textContent='上位 '+snap.size+' 名'+tail;
-    snap.docs.forEach((d,i)=>{const v=d.data()||{};const li=document.createElement('li');if(d.id===RK.uid)li.className='me';
-      const n=document.createElement('span');n.className='n';n.textContent=i+1;
-      const nm=document.createElement('span');nm.className='nm';nm.textContent=String(v.name||'名無し').slice(0,12);
-      const sc=document.createElement('span');sc.className='sc';sc.textContent=fmt(v.score||0);const sm=document.createElement('small');sm.textContent=(v.diff&&DIFF[v.diff]&&v.diff!=='normal'?DIFF[v.diff].name+' · ':'')+'W'+(v.wave||0);sc.appendChild(sm);
-      li.append(n,nm,sc);L.appendChild(li);});
-  }catch(e){N.textContent='ランキングを読み込めませんでした。時間をおいて開き直してください。';}
+    const snap=await RK.db.collection('scores').orderBy('score','desc').limit(500).get();
+    const out={easy:[],normal:[],hard:[]};
+    snap.docs.forEach(doc=>{const v=doc.data()||{},best={...(v.best||{})};const ld=DIFF[v.diff]&&!DIFF[v.diff].creative?v.diff:'normal';
+      if(!best[ld]&&v.score)best[ld]={score:v.score,wave:v.wave};
+      for(const d of ['easy','normal','hard'])if(best[d]&&best[d].score>0)out[d].push({name:v.name,score:best[d].score,wave:best[d].wave,me:doc.id===RK.uid});});
+    for(const d in out)out[d]=out[d].sort((p,q)=>q.score-p.score).slice(0,50);
+    RKV.data=out;RKV.note=RK.why==='readonly'?WHY.readonly:'';
+  }catch(e){RKV.note='ランキングを読み込めませんでした。時間をおいて開き直してください。';}
+  showRankTab(RKV.tab);
 }
 async function submitScore(){
   const N=$('oNote'),btn=$('oSubmit');
@@ -1989,16 +1999,20 @@ async function submitScore(){
   const name=($('oName').value||'').trim().slice(0,12);
   if(!name){N.textContent='名前を入力してください。';return;}
   LS.set('ztd.name',name);
-  if(supaOn()){btn.disabled=true;N.textContent='登録中…';try{await supaSubmit(name);N.textContent='登録しました。';btn.textContent='登録済み';}catch(e){btn.disabled=false;N.textContent='登録できませんでした。通信状態を確かめてもう一度お試しください。';}return;}
+  if(supaOn()){btn.disabled=true;N.textContent='登録中…';try{await supaSubmit(name);N.textContent=`${DIFF[G.diff].name}のランキングに登録しました。`;btn.textContent='登録済み';}catch(e){btn.disabled=false;N.textContent='登録できませんでした。通信状態を確かめてもう一度お試しください。';}return;}
   for(let i=0;i<40&&!RK.ready;i++)await new Promise(r=>setTimeout(r,250));
   if(!RK.db||!RK.uid){N.textContent=(WHY[RK.why]||WHY.signin)+'（自己ベストはこの端末に保存済み）';return;}
   if(RK.canWrite===false){N.textContent=WHY.readonly;return;}
   btn.disabled=true;N.textContent='登録中…';
   try{
     const ref=RK.db.doc('scores/'+RK.uid);let cur;
-    try{cur=await ref.get();}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,800+Math.random()*700));cur=await ref.get();}else throw e;}const prev=cur.exists?(cur.data().score||0):0;
-    if(prev>=G.score){await ref.set({...cur.data(),name});N.textContent=`自己ベスト ${fmt(prev)} を下回ったため、名前だけ更新しました。`;}
-    else{await ref.set({name,diff:G.diff,score:Math.floor(G.score),wave:G.wave,kills:G.kills,at:new Date().toISOString()});N.textContent='登録しました。';}
+    try{cur=await ref.get();}catch(e){if(e&&e.code==='unavailable'){await new Promise(r=>setTimeout(r,800+Math.random()*700));cur=await ref.get();}else throw e;}const old=cur.exists?cur.data()||{}:{},best={...(old.best||{})},ld=DIFF[old.diff]&&!DIFF[old.diff].creative?old.diff:'normal';
+    if(!best[ld]&&old.score)best[ld]={score:old.score,wave:old.wave};
+    const prev=best[G.diff]?best[G.diff].score:0,dn=DIFF[G.diff].name;
+    if(prev>=G.score){await ref.set({...old,name,best});N.textContent=`${dn}の自己ベスト ${fmt(prev)} を下回ったため、名前だけ更新しました。`;}
+    else{best[G.diff]={score:Math.floor(G.score),wave:G.wave,at:new Date().toISOString()};const top=Math.max(...Object.values(best).map(b=>b.score||0));
+      const nd={...old,name,best,score:top};if(Math.floor(G.score)>=top){Object.assign(nd,{diff:G.diff,wave:G.wave,kills:G.kills,at:new Date().toISOString()});}
+      await ref.set(nd);N.textContent=`${dn}のランキングに登録しました。`;}
     btn.textContent='登録済み';
   }catch(e){const c=e&&e.code;btn.disabled=c==='invalid_argument';
     N.textContent=c==='invalid_argument'?WHY.readonly:c==='revoked'?'共有設定が変わったため登録できません。開き直してください。':`登録できませんでした（${c||'エラー'}）。もう一度お試しください。`;}
@@ -2015,7 +2029,8 @@ const NEWS=[
     '<b>遊び方が見やすく</b>：遊び方の画面を目次付きの項目ごとに整理し、横に広げて、説明を丁寧語にしました',
     '<b>詳しい数値</b>：遊び方のタワー・ゾンビ・建物にマウスを重ねる（スマホはタップする）と、体力や攻撃力などの詳しい数値が出ます',
     '<b>新しいゾンビ</b>：遠くから爆弾を投げて周りの建物を壊す「ボマー」（ウェーブ7から）と、とても遠くから骨の矢で撃つ「スナイパー」（ウェーブ10から）が登場します',
-    '<b>新しいゾンビの建物</b>：周りのゾンビを速く強くする「怒りのトーテム」と、周りのタワーの攻撃を遅く弱くする「呪いの祭壇」が加わりました']},
+    '<b>新しいゾンビの建物</b>：周りのゾンビを速く強くする「怒りのトーテム」と、周りのタワーの攻撃を遅く弱くする「呪いの祭壇」が加わりました',
+    '<b>難易度別ランキング</b>：ランキングがかんたん・ふつう・むずかしいに分かれました。画面上の切り替えで見たい難易度を選べます。自己ベストも難易度ごとに記録されます']},
   {v:'1.1',d:'2026年10月19日',items:[
     '<b>線状設置</b>：塀やタワーを選んで空いたマスを長押しすると、黄色い線が出ます。指を動かして線を伸ばし、離すと線の上にまとめて置けます',
     '<b>一斉強化</b>：強化ボタンの下のスイッチをオンにすると、同じ種類・同じ段階のタワーをまとめて強化できます。盤面を指でなぞって囲むか、1台ずつタップして、強化するタワーを選べます',
