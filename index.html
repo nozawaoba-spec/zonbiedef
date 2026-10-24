@@ -188,6 +188,17 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 .bulk .sw::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#cfc8bb;transition:left .15s}
 .bulk.on{background:rgba(240,168,60,.18);border-color:#f0a83c}.bulk.on .sw{background:#f0a83c}.bulk.on .sw::after{left:15px;background:#fff}
 .bhint{font-size:11px;opacity:.65;margin-top:4px;padding:0 2px}
+.dsel{position:relative;}
+.dcur{width:100%;background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:10px 40px 10px 12px;text-align:left;display:flex;flex-direction:column;gap:2px;position:relative;}
+.dcur::after{content:'';position:absolute;right:16px;top:50%;width:9px;height:9px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);transition:transform .15s;}
+.dcur[aria-expanded=true]::after{transform:translateY(-30%) rotate(-135deg);}
+.dcur small{font-size:11px;color:var(--muted);}
+.dcur b{font-family:var(--f-display);font-weight:400;font-size:18px;}
+.dcur span{font-size:12px;color:var(--muted);line-height:1.5;}
+.dcur[data-d=easy] b{color:#7fe0a0;}.dcur[data-d=normal] b{color:var(--lamp);}.dcur[data-d=hard] b{color:var(--blood);}.dcur[data-d=creative] b{color:#b48be0;}
+.dmenu{margin-top:6px;padding:6px;border:1px solid var(--line);border-radius:12px;background:var(--night);display:flex;flex-direction:column;gap:6px;}
+.dmenu .diffbtn.last{border-color:var(--lamp);box-shadow:inset 3px 0 0 var(--lamp);}
+#hCoin.neg{color:#ff6b5a;}
 </style>
 </head>
 <body>
@@ -275,7 +286,11 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 <div class="ov" id="ovDiff" hidden>
   <div class="card">
     <h2>難易度を選ぶ</h2>
-    <div class="diffs" id="dList"></div>
+    <div class="dsel">
+      <button class="dcur" id="dCur" aria-haspopup="listbox" aria-expanded="false"></button>
+      <div class="diffs dmenu" id="dList" role="listbox" hidden></div>
+    </div>
+    <button class="big" id="dGo">はじめる</button>
     <button class="sec" id="dClose">もどる</button>
   </div>
 </div>
@@ -308,7 +323,7 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
     <p>速度ボタンを長押しすると10倍速になります。もう一度タップすると元の速度に戻ります。</p>
     <p>盤面の下にある「×1」ボタンを押すたびに、ゲーム速度が ×1 → ×2 → ×3 と切り替わります。右上の ⚙ ボタンでは、BGMと効果音の音量を変えられます。</p>
     <p>クリエイティブでは、盤面の下の「敵」ボタンから好きなゾンビ・ボス・ゾンビの建物を選び、盤面をタップした場所に出せます。</p>
-    <p>「はじめる」を押すと難易度を選べます（かんたん・ふつう・むずかしい・クリエイティブ）。クリエイティブはコインが無限で町の体力が減らず、ランキングには登録されません。</p>
+    <p>「はじめる」を押すと難易度を選べます（かんたん・ふつう・むずかしい・クリエイティブ）。クリエイティブはコインが足りなくても置けて（所持コインはマイナスになっていきます）、町の体力が減らず、ランキングには登録されません。</p>
     <p>左上の「町の体力」をタップすると、1000コインで体力が1回復します（最大30まで）。</p>
     <p>ゾンビは上端の出現口（建築できません）の横10列から現れ、自由に道を探しながら、だんだん町（下端）の真ん中へ集まってきます。道が塞がれていれば、建物を壊して進みます。町に入られると体力が減り、0になると終了です。</p>
     <p>タワーは強化するたびに見た目が変わります。1・3・5段目に付く部品のランプの色で、選んだ強化が分かります（A＝オレンジ、B＝青）。</p>
@@ -449,7 +464,7 @@ const DIFF={
   easy:{name:'かんたん',desc:'敵が弱く、コインが多めです。はじめての方向け',hp:.7,atk:.7,coins:450,rew:1.2,late:18},
   normal:{name:'ふつう',desc:'標準の難しさです',hp:1,atk:1,coins:300,rew:1,late:15},
   hard:{name:'むずかしい',desc:'敵が硬く強いです。凶暴化はウェーブ11から',hp:1.35,atk:1.3,coins:250,rew:.9,late:10},
-  creative:{name:'クリエイティブ',desc:'コイン無限で、町の体力が減りません。自由に試せます（記録なし）',hp:1,atk:1,coins:0,rew:1,late:15,creative:true},
+  creative:{name:'クリエイティブ',desc:'コインがマイナスになっても置けて、町の体力が減りません。自由に試せます（記録なし）',hp:1,atk:1,coins:0,rew:1,late:15,creative:true},
 };
 const D=()=>DIFF[(G&&G.diff)||'normal']||DIFF.normal;
 const isCreative=()=>!!(G&&DIFF[G.diff]&&DIFF[G.diff].creative);
@@ -457,7 +472,7 @@ UI.diff=(()=>{try{return JSON.parse(localStorage.getItem('ztd.diff'))}catch(e){r
 UI.off=new Set();UI.bulk=(()=>{try{return localStorage.getItem('ztd.bulk')==='1'}catch(e){return false}})();
 function newGame(diff){
   diff=diff||(G&&G.diff)||UI.diff||'normal';
-  G={diff,coins:DIFF[diff].creative?999999:DIFF[diff].coins,hp:30,wave:0,score:0,kills:0,bs:[],grid:new Array(ROWS*COLS).fill(null),es:[],ps:[],fx:[],
+  G={diff,coins:DIFF[diff].creative?0:DIFF[diff].coins,hp:30,wave:0,score:0,kills:0,bs:[],grid:new Array(ROWS*COLS).fill(null),es:[],ps:[],fx:[],
     zs:[],queue:[],spawnT:0,phase:'idle',cd:0,speed:G?G.speed:(LS.get('ztd.speed',1)||1),paused:false,over:false,dist:null,distT:0,t:0,started:false};
   UI.kind=null;UI.sel=null;UI.panelKey='';
   computeDist();
@@ -496,9 +511,11 @@ function stats(b){
   b.ups.forEach((ch,i)=>UPS[b.kind][i][ch].f(s));
   return s;
 }
+/* creative mode never blocks spending: coins simply run into the minus */
+const afford=cost=>isCreative()||G.coins>=cost,buyN=cost=>isCreative()?999:Math.floor(G.coins/cost);
 function place(kind,c,r){
   const cost=kind==='wall'?WALL.cost:TD[kind].cost;
-  if(r<1||G.coins<cost||cellB(c,r)||zAt(c,r)||rootAt(c,r))return false;
+  if(r<1||!afford(cost)||cellB(c,r)||zAt(c,r)||rootAt(c,r))return false;
   for(const e of G.es){if(Math.abs(e.x-(c+.5))<.5+e.r*.6&&Math.abs(e.y-(r+.5))<.5+e.r*.6)return false;}
   const b={id:bid++,kind,c,r,x:c+.5,y:r+.5,ups:[],cd:.2,invested:cost,flash:0,armorMul:1,buffMul:1};
   b.s=stats(b);b.hp=b.maxHp=b.s.hp;
@@ -517,7 +534,7 @@ function destroyB(b){
   addFx({t:'boom',x:b.x,y:b.y,life:.5,max:.5,col:'#e0503f'});removeB(b);UI.panelKey='';
 }
 function upgrade(b,ch){
-  const stage=b.ups.length;if(stage>=6)return;const cost=upCost(b.kind,stage);if(G.coins<cost)return;
+  const stage=b.ups.length;if(stage>=6)return;const cost=upCost(b.kind,stage);if(!afford(cost))return;
   G.coins-=cost;b.invested+=cost;b.ups.push(ch);snd('up');
   const old=b.maxHp;b.s=stats(b);b.maxHp=b.s.hp;b.hp+=b.maxHp-old;
   addFx({t:'ring',x:b.x,y:b.y,r:.7,life:.4,max:.4,col:'#f0a83c'});UI.panelKey='';
@@ -527,7 +544,7 @@ const bulkMates=b=>[b,...G.bs.filter(o=>o!==b&&!o.dead&&o.kind===b.kind&&o.ups.l
 /* towers the player un-ticked on the board are skipped (UI.off holds their ids) */
 const bulkTargets=b=>bulkMates(b).filter(o=>o===b||!UI.off.has(o.id));
 function upgradeAll(b,ch){const st=b.ups.length;if(st>=6)return 0;const cost=upCost(b.kind,st);let n=0;
-  for(const o of bulkTargets(b)){if(G.coins<cost)break;upgrade(o,ch);n++;}
+  for(const o of bulkTargets(b)){if(!afford(cost))break;upgrade(o,ch);n++;}
   if(n>1)addFx({t:'txt',x:b.x,y:b.y-.6,s:`${n}台を一斉強化`,life:1,max:1,col:'#f0a83c'});return n;}
 function sell(b){snd('sell');G.coins+=Math.floor(b.invested*.6);removeB(b);UI.panelKey='';}
 
@@ -704,7 +721,7 @@ function collideB(e){
 }
 /* ---------- simulation ---------- */
 function step(dt){
-  G.t+=dt;if(isCreative())G.coins=999999;
+  G.t+=dt;
   if((G.megaT=(G.megaT||0)-dt)<=0){G.megaT=.5;checkMega();}
   // spawning
   if(G.phase==='wave'){
@@ -1374,7 +1391,7 @@ const fmt=n=>Math.floor(n).toLocaleString('ja-JP');
 const fmtS=n=>n>=1e5?(n/1e4).toFixed(n>=1e6?0:1)+'万':fmt(n);
 function hud(){
   $('bSpawn').hidden=!isCreative();if(!isCreative()&&UI.spawn){UI.spawn=null;UI.panelKey='';}
-  $('hHp').textContent=Math.max(0,Math.ceil(G.hp));$('bHeal').classList.toggle('can',G.started&&!G.over&&G.coins>=HEAL_COST&&G.hp<MAX_HP);$('hCoin').textContent=isCreative()?'∞':fmtS(G.coins);$('hWave').textContent=G.wave;$('hScore').textContent=fmtS(G.score);
+  $('hHp').textContent=Math.max(0,Math.ceil(G.hp));$('bHeal').classList.toggle('can',G.started&&!G.over&&afford(HEAL_COST)&&G.hp<MAX_HP);$('hCoin').textContent=(G.coins<0?'-':'')+fmtS(Math.abs(G.coins));$('hCoin').classList.toggle('neg',G.coins<0);$('hWave').textContent=G.wave;$('hScore').textContent=fmtS(G.score);
   const m=$('wMsg'),btn=$('bWave');
   if(G.phase==='wave'){m.innerHTML=`ウェーブ <b>${G.wave}</b> 進行中 · 残り <b>${G.es.length+G.queue.length}</b> 体${lateK(G.wave)?` · <b style="color:var(--blood)">凶暴化 Lv${lateK(G.wave)}</b>`:''}`;btn.hidden=true;}
   else if(!G.started){m.textContent='タワーを置いてから開始しよう';btn.hidden=false;btn.textContent='ウェーブ開始';}
@@ -1399,8 +1416,8 @@ function panel(){
     $('panel').innerHTML=`<div class="info"><div class="top"><div class="ttl"><b>${UI.spawn.elite?'精鋭の':''}${UI.spawn.name}</b><div>盤面をタップした場所に${UI.spawn.g==='s'?'建てます':UI.spawn.n+'体出します'}。続けて何回でも出せます</div></div>
       <button class="small" data-a="spchange">変える</button><button class="small sell" data-a="spstop">やめる</button></div></div>`;return;}
   const sel=UI.sel&&!UI.sel.dead?UI.sel:null;
-  const key=sel?`s${sel.id}:${sel.ups.join('')}:${sel.ups.length<6?Math.floor(G.coins/upCost(sel.kind,sel.ups.length)):0}:${UI.bulk?bulkMates(sel).length+'/'+bulkTargets(sel).length:'x'}`:
-    `p${UI.kind}:`+Object.keys(TD).map(k=>G.coins>=TD[k].cost?1:0).join('')+(G.coins>=WALL.cost?1:0);
+  const key=sel?`s${sel.id}:${sel.ups.join('')}:${sel.ups.length<6?buyN(upCost(sel.kind,sel.ups.length)):0}:${UI.bulk?bulkMates(sel).length+'/'+bulkTargets(sel).length:'x'}`:
+    `p${UI.kind}:`+Object.keys(TD).map(k=>afford(TD[k].cost)?1:0).join('')+(afford(WALL.cost)?1:0);
   if(key===UI.panelKey)return;UI.panelKey=key;
   const P=$('panel');
   if(sel){
@@ -1410,16 +1427,16 @@ function panel(){
     {
       if(sel.ups.length)h+=`<div class="path">${sel.ups.map((c,i)=>`<span>${i+1}. ${UPS[sel.kind][i][c].n}</span>`).join('')}</div>`;
       const st=sel.ups.length;
-      if(st<6){const cost=upCost(sel.kind,st),all=bulkMates(sel).length,mates=bulkTargets(sel).length,bulk=UI.bulk&&all>1,can=Math.min(mates,Math.floor(G.coins/cost));
+      if(st<6){const cost=upCost(sel.kind,st),all=bulkMates(sel).length,mates=bulkTargets(sel).length,bulk=UI.bulk&&all>1,can=Math.min(mates,buyN(cost));
         h+=`<div class="ups">${['A','B'].map((c,i)=>{const u=UPS[sel.kind][st][i];
-        return`<button class="up" data-a="up" data-c="${i}" ${G.coins<cost?'disabled':''}><span class="k">強化 ${st+1}/6 · ${c}</span><b>${u.n}</b><span class="d">${u.d}</span><span class="c">${bulk?`${Math.max(can,0)}/${mates}台 · ${cost*Math.max(can,1)} コイン`:`${cost} コイン`}</span></button>`;}).join('')}</div>`;
+        return`<button class="up" data-a="up" data-c="${i}" ${!afford(cost)?'disabled':''}><span class="k">強化 ${st+1}/6 · ${c}</span><b>${u.n}</b><span class="d">${u.d}</span><span class="c">${bulk?`${Math.max(can,0)}/${mates}台 · ${cost*Math.max(can,1)} コイン`:`${cost} コイン`}</span></button>`;}).join('')}</div>`;
         h+=`<button class="bulk${UI.bulk?' on':''}" data-a="bulk"><span class="sw"></span>一斉強化 <small>${all>1?(UI.bulk?`${mates}/${all}台を選択中`:`同じ段階の${t.name}${sel.kind==='wall'?'':'タワー'} ${all}台`):'同じ段階の仲間がいません'}</small></button>${UI.bulk&&all>1?`<div class="bhint">盤面をなぞって囲むか、同じタワーをタップして選べます</div>`:''}`;}
       else h+=`<div class="maxed">最大強化に到達</div>`;
     }
     P.innerHTML=h+'</div>';
   }else{
     const items=[...Object.keys(TD).map(k=>({k,...TD[k]})),{k:'wall',...WALL}];
-    let h='<div class="palette">'+items.map(it=>`<button class="pal ${UI.kind===it.k?'sel':''}" data-a="pick" data-k="${it.k}" ${G.coins<it.cost?'disabled':''}><span class="g" style="color:${it.col}">${it.g}</span><span class="nm">${it.sn||it.name}</span><span class="c">${it.cost}</span></button>`).join('')+'</div>';
+    let h='<div class="palette">'+items.map(it=>`<button class="pal ${UI.kind===it.k?'sel':''}" data-a="pick" data-k="${it.k}" ${!afford(it.cost)?'disabled':''}><span class="g" style="color:${it.col}">${it.g}</span><span class="nm">${it.sn||it.name}</span><span class="c">${it.cost}</span></button>`).join('')+'</div>';
     const cur=UI.kind?(UI.kind==='wall'?WALL:TD[UI.kind]):null;
     h+=`<div class="hint">${cur?`<b>${cur.name}</b>：${cur.desc}。${'タップで1つ、長押しで黄色い線を引いて並べて置けます。'}`:'タワーを選んでマスをタップしてください。置いたタワーをタップすると強化・売却できます。'}</div>`;
     P.innerHTML=h;
@@ -1446,9 +1463,9 @@ const pieceCost=k=>k==='wall'?WALL.cost:TD[k].cost;
 function cellFree(c,r){if(c<0||c>=COLS||r<1||r>=ROWS||cellB(c,r)||zAt(c,r)||rootAt(c,r))return false;
   for(const e of G.es){if(Math.abs(e.x-(c+.5))<.5+e.r*.6&&Math.abs(e.y-(r+.5))<.5+e.r*.6)return false;}return true;}
 /* plan: which cells along the line get a piece (free + affordable in order) */
-function linePlan(){const k=UI.kind,cost=pieceCost(k);let coins=G.coins;const cells=lineCells(LN.c0,LN.r0,LN.c1,LN.r1);
+function linePlan(){const k=UI.kind,cost=pieceCost(k);let coins=isCreative()?Infinity:G.coins;const cells=lineCells(LN.c0,LN.r0,LN.c1,LN.r1);
   return cells.map(([c,r])=>{const free=cellFree(c,r),ok=free&&coins>=cost;if(ok)coins-=cost;return{c,r,free,ok};});}
-function failMsg(c,row){const cost=pieceCost(UI.kind);snd('err');addFx({t:'txt',x:c+.5,y:row+.5,s:row<1?'出現口には置けない':zAt(c,row)?'ゾンビの建物がある':rootAt(c,row)?'根が張っていて置けない':G.coins<cost?'コイン不足':'置けない',life:.7,max:.7,col:'#e0503f'});}
+function failMsg(c,row){const cost=pieceCost(UI.kind);snd('err');addFx({t:'txt',x:c+.5,y:row+.5,s:row<1?'出現口には置けない':zAt(c,row)?'ゾンビの建物がある':rootAt(c,row)?'根が張っていて置けない':!afford(cost)?'コイン不足':'置けない',life:.7,max:.7,col:'#e0503f'});}
 function startLine(){if(!LN.on||LN.line)return;LN.line=true;snd('tick');try{navigator.vibrate&&navigator.vibrate(15);}catch(e){}}
 function drawLine(){if(!LN.on||!LN.line||!UI.kind||!G)return;const plan=linePlan();
   for(const p of plan){ctx.fillStyle=p.ok?'rgba(255,214,64,.28)':'rgba(224,80,63,.28)';rr(p.c+.06,p.r+.06,.88,.88,.12);ctx.fill();
@@ -1565,7 +1582,7 @@ const HEAL_COST=1000,MAX_HP=30;
 $('bHeal').onclick=()=>{
   if(!G||!G.started||G.over)return;
   if(G.hp>=MAX_HP){addFx({t:'txt',x:COLS/2,y:ROWS-.2,s:'体力は満タン',life:.9,max:.9,col:'#9097a6'});snd('err');return;}
-  if(G.coins<HEAL_COST){addFx({t:'txt',x:COLS/2,y:ROWS-.2,s:'1000コインで体力+1（コイン不足）',life:1.1,max:1.1,col:'#e0503f'});snd('err');return;}
+  if(!afford(HEAL_COST)){addFx({t:'txt',x:COLS/2,y:ROWS-.2,s:'1000コインで体力+1（コイン不足）',life:1.1,max:1.1,col:'#e0503f'});snd('err');return;}
   G.coins-=HEAL_COST;G.hp=Math.min(MAX_HP,G.hp+1);snd('heal');
   addFx({t:'townheal',life:1.2,max:1.2});
   addFx({t:'txt',x:COLS/2,y:ROWS-.5,s:`町の体力 +1 → ${Math.ceil(G.hp)}`,life:1.6,max:1.6,col:'#7fe0a0',sz:.55});
@@ -1851,9 +1868,13 @@ function gameOver(delay=700){
   setTimeout(()=>{$('ovOver').hidden=false;},delay);
 }
 $('tCont').onclick=()=>{const sv=loadSave();if(!sv)return;$('ovTitle').hidden=true;restore(sv);UI.panelKey='';panel();};
-function openDiff(){$('dList').innerHTML=Object.entries(DIFF).map(([k,d])=>`<button class="diffbtn${k===UI.diff?' last':''}" data-d="${k}"><b>${d.name}</b><span>${d.desc}</span></button>`).join('');$('ovDiff').hidden=false;}
-$('dList').onclick=ev=>{const bt=ev.target.closest('[data-d]');if(!bt)return;UI.diff=bt.dataset.d;LS.set('ztd.diff',UI.diff);
-  clearSave();$('ovDiff').hidden=true;$('ovTitle').hidden=true;newGame(UI.diff);G.paused=false;showSpeed();UI.panelKey='';panel();};
+function showDiffCur(){const d=DIFF[UI.diff];const c=$('dCur');c.dataset.d=UI.diff;c.innerHTML=`<small>難易度（タップで変更）</small><b>${d.name}</b><span>${d.desc}</span>`;}
+function diffMenu(open){$('dList').hidden=!open;$('dCur').setAttribute('aria-expanded',open?'true':'false');
+  if(open)$('dList').innerHTML=Object.entries(DIFF).map(([k,d])=>`<button class="diffbtn${k===UI.diff?' last':''}" data-d="${k}" role="option" aria-selected="${k===UI.diff}"><b>${d.name}</b><span>${d.desc}</span></button>`).join('');}
+function openDiff(){showDiffCur();diffMenu(false);$('ovDiff').hidden=false;}
+$('dCur').onclick=()=>{snd('tick');diffMenu($('dList').hidden);};
+$('dList').onclick=ev=>{const bt=ev.target.closest('[data-d]');if(!bt)return;UI.diff=bt.dataset.d;LS.set('ztd.diff',UI.diff);snd('tick');showDiffCur();diffMenu(false);};
+$('dGo').onclick=()=>{clearSave();$('ovDiff').hidden=true;$('ovTitle').hidden=true;newGame(UI.diff);G.paused=false;showSpeed();UI.panelKey='';panel();};
 $('dClose').onclick=()=>{$('ovDiff').hidden=true;};
 $('tStart').onclick=()=>{if(loadSave()&&!startArmed){startArmed=true;$('tStart').textContent='保存データを消して始める（もう一度タップ）';return;}
   openDiff();};
