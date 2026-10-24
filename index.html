@@ -543,7 +543,7 @@ const UPC={
     U('対ボス弾','ボスへのダメージ ×2',s=>s.boss=Math.max(s.boss,1)),U('処刑弾','体力10%以下の敵を即撃破（ボス以外）',s=>s.execute=Math.max(s.execute,.1))],
   power:[U('軽量砲','攻撃間隔 −10%・射程 +0.3',s=>{s.rate*=.9;s.range+=.3}),U('焼夷砲弾','命中した敵が燃える（6/秒・3秒）',s=>{s.burnDps=Math.max(s.burnDps,6);s.burnDur=Math.max(s.burnDur,3)}),
     U('高速弾','攻撃間隔 −15%',s=>s.rate*=.85),U('処刑弾','体力10%以下の敵を即撃破（ボス以外）',s=>s.execute=Math.max(s.execute,.1)),
-    U('重装砲座','耐久 +120・被ダメージ −15%',s=>{s.hp+=120;s.selfArmor=Math.max(s.selfArmor,.15)}),U('終末砲','攻撃力 ×1.8・攻撃間隔 +30%',s=>{s.dmg*=1.8;s.rate*=1.3})],
+    U('重装砲座','耐久 +120・被ダメージ −15%',s=>{s.hp+=120;s.selfArmor=Math.max(s.selfArmor,.15)}),U('終末砲','攻撃力 ×1.8・燃焼ダメージ ×1.5（なければ付与）',s=>{s.dmg*=1.8;s.burnDps=(s.burnDps||6)*1.5;s.burnDur=Math.max(s.burnDur,3)})],
   burn:[U('毒の矢','攻撃力 ×2',s=>s.dmg*=2),U('防毒装甲','耐久 +80',s=>s.hp+=80),
     U('麻痺毒','毒の敵を15%減速',s=>s.slow=Math.max(s.slow,.15)),U('溶解液','着弾範囲 +0.6',s=>s.splash=(s.splash||0)+.6),
     U('高速散布','攻撃間隔 −35%',s=>s.rate*=.65),U('三連ノズル','同時に3体へ撃つ',s=>s.multi=3)],
@@ -1622,7 +1622,7 @@ function panel(){
     P.innerHTML=h+'</div>';
   }else{
     const items=[...Object.keys(TD).map(k=>({k,...TD[k]})),{k:'wall',...WALL}];
-    let h='<div class="palette">'+items.map(it=>`<button class="pal ${UI.kind===it.k?'sel':''}" data-a="pick" data-k="${it.k}" data-tip="t:${it.k}" ${!afford(it.cost)?'disabled':''}><span class="g" style="color:${it.col}">${it.g}</span><span class="nm">${it.sn||it.name}</span><span class="c">${it.cost}</span></button>`).join('')+'</div>';
+    let h='<div class="palette">'+items.map(it=>`<button class="pal ${UI.kind===it.k?'sel':''}" data-a="pick" data-k="${it.k}" ${!afford(it.cost)?'disabled':''}><span class="g" style="color:${it.col}">${it.g}</span><span class="nm">${it.sn||it.name}</span><span class="c">${it.cost}</span></button>`).join('')+'</div>';
     const cur=UI.kind?(UI.kind==='wall'?WALL:TD[UI.kind]):null;
     h+=`<div class="hint">${cur?`<b>${cur.name}</b>：${cur.desc}。${'タップで1つ、長押しで黄色い線を引いて並べて置けます。'}`:'タワーを選んでマスをタップしてください。置いたタワーをタップすると強化・売却できます。'}</div>`;
     P.innerHTML=h;
@@ -2162,10 +2162,10 @@ function showTip(el,x,y){const k=el.dataset.tip;if(!k)return;tipKey=k;tipEl.inne
   const W=innerWidth,H=innerHeight,r=tipEl.getBoundingClientRect();let L=x+14,T=y+14;if(L+r.width>W-8)L=Math.max(8,x-r.width-14);if(T+r.height>H-8)T=Math.max(8,H-r.height-8);
   tipEl.style.left=L+'px';tipEl.style.top=T+'px';}
 function hideTip(){tipEl.hidden=true;tipKey=null;}
-document.addEventListener('pointermove',ev=>{if(ev.pointerType!=='mouse')return;const el=ev.target.closest&&ev.target.closest('[data-tip]');if(el)showTip(el,ev.clientX,ev.clientY);else if(tipKey)hideTip();});
+document.addEventListener('pointermove',ev=>{if(ev.pointerType!=='mouse')return;const el=ev.target.closest&&ev.target.closest('#ovHelp [data-tip]');if(el)showTip(el,ev.clientX,ev.clientY);else if(tipKey)hideTip();});
 document.addEventListener('pointerdown',ev=>{if(ev.pointerType==='mouse')return;const el=ev.target.closest&&ev.target.closest('#ovHelp [data-tip]');
   if(el&&el.dataset.tip!==tipKey){const r=el.getBoundingClientRect();showTip(el,Math.min(r.left+20,innerWidth-40),r.bottom-6);}else hideTip();},true);
-document.addEventListener('focusin',ev=>{const el=ev.target.closest&&ev.target.closest('[data-tip]');if(el){const r=el.getBoundingClientRect();showTip(el,r.left+20,r.bottom);}});
+document.addEventListener('focusin',ev=>{const el=ev.target.closest&&ev.target.closest('#ovHelp [data-tip]');if(el){const r=el.getBoundingClientRect();showTip(el,r.left+20,r.bottom);}});
 document.addEventListener('focusout',hideTip);
 $('ovHelp').querySelector('.card').addEventListener('scroll',hideTip,{passive:true});
 /* draw each zombie / structure with the game's own renderer */
