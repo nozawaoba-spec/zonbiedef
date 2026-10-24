@@ -174,9 +174,20 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 .list div{display:grid;grid-template-columns:28px 1fr;gap:8px;font-size:12px;line-height:1.5;color:var(--muted);}
 .zl div{grid-template-columns:46px 1fr;align-items:center;}
 .zl canvas{width:44px;height:44px;position:static;transform:none;border-radius:8px;background:var(--night);display:block;}
+/* wide help screen: nearly full width on phones, up to 960px on big screens, lists in columns when there is room */
+#ovHelp{padding-left:6px;padding-right:6px;}
+#ovHelp .card{max-width:min(960px,100%);padding:20px 16px;}
+#ovHelp .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px 18px;}
+#ovHelp #hClose{align-self:center;min-width:200px;}
 .list i{font-style:normal;font-family:var(--f-display);font-size:15px;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;color:#16130d;}
 .list b{color:var(--ink);}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+.bulk{display:flex;align-items:center;gap:8px;width:100%;margin-top:6px;padding:7px 10px;border-radius:10px;border:1px solid rgba(240,168,60,.35);background:rgba(240,168,60,.06);color:#eee8dc;font:inherit;font-size:13px;font-weight:700;text-align:left}
+.bulk small{font-weight:400;opacity:.7;font-size:11px;margin-left:auto}
+.bulk .sw{width:30px;height:17px;border-radius:9px;background:#3a3c44;position:relative;flex:none;transition:background .15s}
+.bulk .sw::after{content:'';position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#cfc8bb;transition:left .15s}
+.bulk.on{background:rgba(240,168,60,.18);border-color:#f0a83c}.bulk.on .sw{background:#f0a83c}.bulk.on .sw::after{left:15px;background:#fff}
+.bhint{font-size:11px;opacity:.65;margin-top:4px;padding:0 2px}
 </style>
 </head>
 <body>
@@ -227,7 +238,7 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
   <div class="card">
     <div class="tag">RESULT</div>
     <div class="note" id="oDiff"></div>
-    <h2>町が陥落した</h2>
+    <h2>町が陥落しました</h2>
     <div class="res">
       <div><small>スコア</small><b id="oScore">0</b></div>
       <div><small>到達ウェーブ</small><b id="oWave">0</b></div>
@@ -256,7 +267,7 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
     <h2>設定</h2>
     <div class="setrow"><label for="sBgm">BGMの音量<span id="sBgmV">100</span></label><input type="range" id="sBgm" min="0" max="100" step="5"></div>
     <div class="setrow"><label for="sSe">効果音の音量<span id="sSeV">100</span></label><input type="range" id="sSe" min="0" max="100" step="5"></div>
-    <p>設定はこのブラウザに保存される。</p>
+    <p>設定はこのブラウザに保存されます。</p>
     <button class="big" id="sClose">閉じる</button>
   </div>
 </div>
@@ -276,7 +287,7 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
     <h3>ゾンビ</h3><div class="spgrid" id="spZ"></div>
     <h3>ボス</h3><div class="spgrid" id="spB"></div>
     <h3>ゾンビの建物</h3><div class="spgrid" id="spS"></div>
-    <p>選んだあと、盤面をタップした場所に出る。</p>
+    <p>選んだあと、盤面をタップした場所に出ます。</p>
     <button class="sec" id="spClose">閉じる</button>
   </div>
 </div>
@@ -292,21 +303,21 @@ input[type=text]{background:var(--night);border:1px solid var(--line);border-rad
 <div class="ov" id="ovHelp" hidden>
   <div class="card">
     <h2>遊び方</h2>
-    <p>下のパネルでタワーか塀を選び、マスをタップして配置。置いたタワーをタップすると強化・売却ができる。強化は6段階で、各段階で2つの強化から1つを選ぶ。</p>
-    <p>ウェーブの合間に自動で保存され、タイトルの「続きから」で再開できる（このブラウザだけに保存。ウェーブの途中でやめた場合は、その直前の合間から）。</p>
-    <p>速度ボタンを長押しすると10倍速になる。もう一度タップすると元の速度に戻る。</p>
-    <p>盤面の下にある「×1」ボタンを押すたびに、ゲーム速度が ×1 → ×2 → ×3 と切り替わる。右上の ⚙ ボタンでは、BGMと効果音の音量を変えられる。</p>
-    <p>クリエイティブでは、盤面の下の「敵」ボタンから好きなゾンビ・ボス・ゾンビの建物を選び、盤面をタップした場所に出せる。</p>
-    <p>「はじめる」を押すと難易度を選べる（かんたん・ふつう・むずかしい・クリエイティブ）。クリエイティブはコイン無限で町の体力が減らず、ランキングには登録されない。</p>
-    <p>左上の「町の体力」をタップすると、1000コインで体力が1回復する（最大30まで）。</p>
-    <p>ゾンビは上端の出現口（建築不可）の横10列から現れ、自由に道を探しながら、だんだん町（下端）の真ん中へ集まってくる。塞がれていれば建物を壊して進む。町に入られると体力が減り、0で終了。</p>
-    <p>タワーは強化するたびに見た目が変わる。1・3・5段目に付く部品のランプの色で、選んだ強化が分かる（A＝オレンジ、B＝青）。</p>
-    <p>身代わり人形は、点線の輪の中にいるゾンビを引き寄せて自分を攻撃させる。塀と組み合わせると、ゾンビを足止めしやすい。</p>
-    <p>塀やタワーを選んだまま、空いているマスを長押しすると黄色い線が出る。指を動かして線を伸ばし、離すと線の上のマスにまとめて置ける（コインが足りる分だけ）。置いたものを強化するときは、もう一度ボタンを押して選択を外してからタップする。</p>
-    <p>塀も6段階まで強化できる（鉄板・トゲ・電気柵・地雷など）。</p>
+    <p>下のパネルでタワーか塀を選び、マスをタップして配置します。置いたタワーをタップすると、強化や売却ができます。強化は6段階で、各段階で2つの強化から1つを選びます。強化ボタンの下の「一斉強化」をオンにすると、同じ種類・同じ段階のタワーや塀をまとめて同じ強化にできます（コインが足りる分だけ）。オンの間に盤面の同じタワーをタップすると、強化する・しないを1台ずつ切り替えられます。何も選んでいない状態で盤面を指でなぞると四角で囲めて、囲んだタワーをまとめて一斉強化の対象にできます。</p>
+    <p>ウェーブの合間に自動で保存され、タイトルの「続きから」で再開できます（このブラウザだけに保存されます。ウェーブの途中でやめた場合は、その直前の合間から再開します）。</p>
+    <p>速度ボタンを長押しすると10倍速になります。もう一度タップすると元の速度に戻ります。</p>
+    <p>盤面の下にある「×1」ボタンを押すたびに、ゲーム速度が ×1 → ×2 → ×3 と切り替わります。右上の ⚙ ボタンでは、BGMと効果音の音量を変えられます。</p>
+    <p>クリエイティブでは、盤面の下の「敵」ボタンから好きなゾンビ・ボス・ゾンビの建物を選び、盤面をタップした場所に出せます。</p>
+    <p>「はじめる」を押すと難易度を選べます（かんたん・ふつう・むずかしい・クリエイティブ）。クリエイティブはコインが無限で町の体力が減らず、ランキングには登録されません。</p>
+    <p>左上の「町の体力」をタップすると、1000コインで体力が1回復します（最大30まで）。</p>
+    <p>ゾンビは上端の出現口（建築できません）の横10列から現れ、自由に道を探しながら、だんだん町（下端）の真ん中へ集まってきます。道が塞がれていれば、建物を壊して進みます。町に入られると体力が減り、0になると終了です。</p>
+    <p>タワーは強化するたびに見た目が変わります。1・3・5段目に付く部品のランプの色で、選んだ強化が分かります（A＝オレンジ、B＝青）。</p>
+    <p>身代わり人形は、点線の輪の中にいるゾンビを引き寄せて、自分を攻撃させます。塀と組み合わせると、ゾンビを足止めしやすくなります。</p>
+    <p>塀やタワーを選んだまま、空いているマスを長押しすると黄色い線が出ます。指を動かして線を伸ばし、離すと線の上のマスにまとめて置けます（コインが足りる分だけ）。置いたものを強化するときは、もう一度ボタンを押して選択を外してからタップしてください。</p>
+    <p>塀も6段階まで強化できます（鉄板・トゲ・電気柵・地雷など）。</p>
     <h3>タワー</h3><div class="list" id="hTowers"></div>
     <h3>ゾンビ</h3><div class="list zl" id="hEnemies"></div>
-    <p>ボスは5ウェーブごとに、4体の中からランダムで出てくる（ボスビルダーはウェーブ10から）。ウェーブ20からは2体以上が同時に出る。</p>
+    <p>ボスは5ウェーブごとに、4体の中からランダムで出てきます（ボスビルダーはウェーブ10から）。ウェーブ20からは2体以上が同時に出ます。</p>
     <h3>ゾンビの建物</h3><div class="list zl" id="hStructs"></div>
     <button class="sec" id="hClose">閉じる</button>
   </div>
@@ -322,19 +333,19 @@ const $=id=>document.getElementById(id);
 const BASE={dmg:0,rate:1,range:2.5,hp:80,multi:1,splash:0,stun:0,burnDps:0,burnDur:0,vuln:0,spread:false,chain:0,nofall:false,
   slow:0,slowDur:0,freeze:0,aura:false,weaken:0,weakDur:0,antiheal:false,atkSlow:0,lifesteal:0,thorns:0,knock:0,heal:0,wallMul:1,armor:0,buff:0,cone:0,boss:0,selfArmor:0,execute:0,regen:0,wslow:0,spike:0,zap:0,boom:0,sdmg:1,bmul:1,blade:1,fly:.8,boomR:1.5,revive:false};
 const TD={
-  rapid:{name:'連射',g:'連',col:'#f0a83c',cost:100,desc:'小さな弾を素早く撃ち続ける',st:{dmg:5,rate:.26,range:3.1,hp:90}},
-  power:{name:'威力',g:'威',col:'#e2774a',cost:150,desc:'重い砲弾で大ダメージ。攻撃は遅い',st:{dmg:42,rate:1.5,range:3.4,hp:100}},
-  burn:{name:'持続',g:'毒',col:'#9bc25a',cost:200,desc:'毒で継続ダメージを与える',st:{dmg:4,rate:.9,range:3,hp:90,burnDps:9,burnDur:4}},
-  chain:{name:'連鎖',g:'雷',col:'#7fb2f0',cost:250,desc:'稲妻が敵から敵へ連鎖する',st:{dmg:20,rate:1.2,range:3.2,hp:90,chain:4}},
-  slow:{name:'鈍足',g:'氷',col:'#a6e3ee',cost:175,desc:'冷気弾で敵の移動速度を下げる',st:{dmg:4,rate:.8,range:3,hp:90,slow:.45,slowDur:2.5}},
-  weak:{name:'弱体',g:'呪',col:'#b48be0',cost:300,desc:'範囲内の敵すべての攻撃力を下げる',st:{dmg:8,rate:1.4,range:3,hp:110,weaken:.45,weakDur:3.5}},
-  melee:{name:'近接',g:'刃',col:'#d9d2c3',cost:100,desc:'隣接する敵をまとめて斬る。頑丈',st:{dmg:11,rate:.55,range:1.5,hp:200}},
-  flame:{name:'火炎',g:'炎',col:'#ff5a2e',cost:225,desc:'前方の扇形をまとめて焼く。大群に強い',st:{dmg:3.2,rate:.15,range:2.2,hp:110,cone:.6}},
-  crusher:{name:'クラッシャー',sn:'粉砕',g:'砕',col:'#d9b02a',cost:500,desc:'貫通する回転ノコギリを飛ばし、ゾンビの建物を優先して切り壊す。建物に3倍ダメージ',st:{dmg:28,rate:1.5,range:3.2,hp:180,sdmg:3,splash:.45}},
-  decoy:{name:'身代わり人形',sn:'身代り',g:'囮',col:'#c8a070',cost:600,desc:'近くのゾンビを引き寄せて、自分を攻撃させる。攻撃はしない',st:{rate:1,range:2.4,hp:420}},
-  repair:{name:'修理',g:'修',col:'#62c4a5',cost:150,desc:'周囲の塀とタワーを回復する',st:{rate:.5,range:2.4,hp:100,heal:8}},
+  rapid:{name:'連射',g:'連',col:'#f0a83c',cost:100,desc:'小さな弾を素早く撃ち続けます',st:{dmg:5,rate:.26,range:3.1,hp:90}},
+  power:{name:'威力',g:'威',col:'#e2774a',cost:150,desc:'重い砲弾で大ダメージを与えます。攻撃は遅めです',st:{dmg:42,rate:1.5,range:3.4,hp:100}},
+  burn:{name:'持続',g:'毒',col:'#9bc25a',cost:200,desc:'毒で継続ダメージを与えます',st:{dmg:4,rate:.9,range:3,hp:90,burnDps:9,burnDur:4}},
+  chain:{name:'連鎖',g:'雷',col:'#7fb2f0',cost:250,desc:'稲妻が敵から敵へ連鎖します',st:{dmg:20,rate:1.2,range:3.2,hp:90,chain:4}},
+  slow:{name:'鈍足',g:'氷',col:'#a6e3ee',cost:175,desc:'冷気弾で敵の移動速度を下げます',st:{dmg:4,rate:.8,range:3,hp:90,slow:.45,slowDur:2.5}},
+  weak:{name:'弱体',g:'呪',col:'#b48be0',cost:300,desc:'範囲内の敵すべての攻撃力を下げます',st:{dmg:8,rate:1.4,range:3,hp:110,weaken:.45,weakDur:3.5}},
+  melee:{name:'近接',g:'刃',col:'#d9d2c3',cost:100,desc:'隣接する敵をまとめて斬ります。頑丈です',st:{dmg:11,rate:.55,range:1.5,hp:200}},
+  flame:{name:'火炎',g:'炎',col:'#ff5a2e',cost:225,desc:'前方の扇形をまとめて焼きます。大群に強いです',st:{dmg:3.2,rate:.15,range:2.2,hp:110,cone:.6}},
+  crusher:{name:'クラッシャー',sn:'粉砕',g:'砕',col:'#d9b02a',cost:500,desc:'貫通する回転ノコギリを飛ばし、ゾンビの建物を優先して切り壊します。建物には3倍ダメージです',st:{dmg:28,rate:1.5,range:3.2,hp:180,sdmg:3,splash:.45}},
+  decoy:{name:'身代わり人形',sn:'身代り',g:'囮',col:'#c8a070',cost:600,desc:'近くのゾンビを引き寄せて、自分を攻撃させます。攻撃はしません',st:{rate:1,range:2.4,hp:420}},
+  repair:{name:'修理',g:'修',col:'#62c4a5',cost:150,desc:'周囲の塀とタワーを回復します',st:{rate:.5,range:2.4,hp:100,heal:8}},
 };
-const WALL={name:'塀',g:'塀',col:'#8a7a68',cost:50,desc:'通り道を塞ぐ。ゾンビは壊して進む',hp:160};
+const WALL={name:'塀',g:'塀',col:'#8a7a68',cost:50,desc:'通り道を塞ぎます。ゾンビは壊して進みます',hp:160};
 const U=(n,d,f)=>({n,d,f});
 const UPS={
   rapid:[[U('弾丸強化','攻撃力 ×1.4',s=>s.dmg*=1.4),U('速射機構','攻撃間隔 −25%',s=>s.rate*=.75)],
@@ -435,14 +446,15 @@ let G=null;
 const UI={kind:null,sel:null,panelKey:''};
 let bid=1;
 const DIFF={
-  easy:{name:'かんたん',desc:'敵が弱く、コインが多い。はじめての人向け',hp:.7,atk:.7,coins:450,rew:1.2,late:18},
-  normal:{name:'ふつう',desc:'標準の難しさ',hp:1,atk:1,coins:300,rew:1,late:15},
-  hard:{name:'むずかしい',desc:'敵が硬く強い。凶暴化はウェーブ11から',hp:1.35,atk:1.3,coins:250,rew:.9,late:10},
-  creative:{name:'クリエイティブ',desc:'コイン無限・町の体力が減らない。自由に試せる（記録なし）',hp:1,atk:1,coins:0,rew:1,late:15,creative:true},
+  easy:{name:'かんたん',desc:'敵が弱く、コインが多めです。はじめての方向け',hp:.7,atk:.7,coins:450,rew:1.2,late:18},
+  normal:{name:'ふつう',desc:'標準の難しさです',hp:1,atk:1,coins:300,rew:1,late:15},
+  hard:{name:'むずかしい',desc:'敵が硬く強いです。凶暴化はウェーブ11から',hp:1.35,atk:1.3,coins:250,rew:.9,late:10},
+  creative:{name:'クリエイティブ',desc:'コイン無限で、町の体力が減りません。自由に試せます（記録なし）',hp:1,atk:1,coins:0,rew:1,late:15,creative:true},
 };
 const D=()=>DIFF[(G&&G.diff)||'normal']||DIFF.normal;
 const isCreative=()=>!!(G&&DIFF[G.diff]&&DIFF[G.diff].creative);
 UI.diff=(()=>{try{return JSON.parse(localStorage.getItem('ztd.diff'))}catch(e){return null}})()||'normal';if(!DIFF[UI.diff])UI.diff='normal';
+UI.off=new Set();UI.bulk=(()=>{try{return localStorage.getItem('ztd.bulk')==='1'}catch(e){return false}})();
 function newGame(diff){
   diff=diff||(G&&G.diff)||UI.diff||'normal';
   G={diff,coins:DIFF[diff].creative?999999:DIFF[diff].coins,hp:30,wave:0,score:0,kills:0,bs:[],grid:new Array(ROWS*COLS).fill(null),es:[],ps:[],fx:[],
@@ -510,6 +522,13 @@ function upgrade(b,ch){
   const old=b.maxHp;b.s=stats(b);b.maxHp=b.s.hp;b.hp+=b.maxHp-old;
   addFx({t:'ring',x:b.x,y:b.y,r:.7,life:.4,max:.4,col:'#f0a83c'});UI.panelKey='';
 }
+/* bulk upgrade: same choice for every building of this kind at the same stage, selected one first, until coins run out */
+const bulkMates=b=>[b,...G.bs.filter(o=>o!==b&&!o.dead&&o.kind===b.kind&&o.ups.length===b.ups.length)];
+/* towers the player un-ticked on the board are skipped (UI.off holds their ids) */
+const bulkTargets=b=>bulkMates(b).filter(o=>o===b||!UI.off.has(o.id));
+function upgradeAll(b,ch){const st=b.ups.length;if(st>=6)return 0;const cost=upCost(b.kind,st);let n=0;
+  for(const o of bulkTargets(b)){if(G.coins<cost)break;upgrade(o,ch);n++;}
+  if(n>1)addFx({t:'txt',x:b.x,y:b.y-.6,s:`${n}台を一斉強化`,life:1,max:1,col:'#f0a83c'});return n;}
 function sell(b){snd('sell');G.coins+=Math.floor(b.invested*.6);removeB(b);UI.panelKey='';}
 
 /* ---------- enemies & waves ---------- */
@@ -1336,12 +1355,17 @@ function render(){
   const sel=UI.sel&&!UI.sel.dead?UI.sel:null;
   if(sel&&sel.kind!=='wall'){ctx.fillStyle='rgba(240,168,60,.08)';ctx.strokeStyle='rgba(240,168,60,.6)';ctx.lineWidth=.03;ctx.beginPath();ctx.arc(sel.x,sel.y,sel.s.range,0,7);ctx.fill();ctx.stroke();}
   if(sel){ctx.strokeStyle='#f0a83c';ctx.lineWidth=.06;rr(sel.c+.02,sel.r+.02,.96,.96,.12);ctx.stroke();}
+  if(sel&&UI.bulk&&sel.ups.length<6)for(const o of bulkMates(sel)){if(o===sel)continue;const on=!UI.off.has(o.id);
+    ctx.strokeStyle=on?'#ffd640':'rgba(200,200,200,.45)';ctx.lineWidth=on?.05:.03;ctx.setLineDash(on?[]:[.1,.08]);rr(o.c+.04,o.r+.04,.92,.92,.12);ctx.stroke();ctx.setLineDash([]);}
   for(const b of G.bs)drawBuilding(b);
+  if(sel&&UI.bulk&&sel.ups.length<6)for(const o of bulkMates(sel)){const on=o===sel||!UI.off.has(o.id),x=o.c+.82,y=o.r+.18;
+    ctx.fillStyle=on?'#ffd640':'rgba(40,40,46,.9)';ctx.strokeStyle=on?'#4a3a10':'rgba(200,200,200,.6)';ctx.lineWidth=.03;ctx.beginPath();ctx.arc(x,y,.15,0,7);ctx.fill();ctx.stroke();
+    if(on){ctx.strokeStyle='#2a2008';ctx.lineWidth=.045;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x-.07,y);ctx.lineTo(x-.015,y+.055);ctx.lineTo(x+.075,y-.06);ctx.stroke();ctx.lineCap='butt';}}
   for(const z of G.zs)drawStruct(z);
   for(const e of G.es)drawEnemy(e);
   for(const p of G.ps){if(p.kind==='crush'){drawSaw(p.x,p.y,p.rad||.2,G.t*28+(p.spin||0),p.b?p.b.ups.length:0,p.b&&p.b.ups.length>=6);continue;}ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,7);ctx.fill();}
   for(const f of G.fx)drawFx(f);
-  drawLine();
+  drawLine();drawBox();
   if(UI.kind&&!G.started&&!G.bs.length)txt('マスをタップして配置',COLS/2,ROWS/2,.36,'rgba(238,232,220,.55)','center','"Zen Kaku Gothic New",sans-serif');
 }
 
@@ -1372,10 +1396,10 @@ function statLine(b){
 }
 function panel(){
   if(UI.spawn&&isCreative()){const k2='sp'+UI.spawn.k+UI.spawn.n+UI.spawn.elite;if(k2===UI.panelKey)return;UI.panelKey=k2;
-    $('panel').innerHTML=`<div class="info"><div class="top"><div class="ttl"><b>${UI.spawn.elite?'精鋭の':''}${UI.spawn.name}</b><div>盤面をタップした場所に${UI.spawn.g==='s'?'建てる':UI.spawn.n+'体出す'}。続けて何回でも出せる</div></div>
+    $('panel').innerHTML=`<div class="info"><div class="top"><div class="ttl"><b>${UI.spawn.elite?'精鋭の':''}${UI.spawn.name}</b><div>盤面をタップした場所に${UI.spawn.g==='s'?'建てます':UI.spawn.n+'体出します'}。続けて何回でも出せます</div></div>
       <button class="small" data-a="spchange">変える</button><button class="small sell" data-a="spstop">やめる</button></div></div>`;return;}
   const sel=UI.sel&&!UI.sel.dead?UI.sel:null;
-  const key=sel?`s${sel.id}:${sel.ups.join('')}:${sel.ups.length<6&&G.coins>=upCost(sel.kind,sel.ups.length)}`:
+  const key=sel?`s${sel.id}:${sel.ups.join('')}:${sel.ups.length<6?Math.floor(G.coins/upCost(sel.kind,sel.ups.length)):0}:${UI.bulk?bulkMates(sel).length+'/'+bulkTargets(sel).length:'x'}`:
     `p${UI.kind}:`+Object.keys(TD).map(k=>G.coins>=TD[k].cost?1:0).join('')+(G.coins>=WALL.cost?1:0);
   if(key===UI.panelKey)return;UI.panelKey=key;
   const P=$('panel');
@@ -1386,8 +1410,10 @@ function panel(){
     {
       if(sel.ups.length)h+=`<div class="path">${sel.ups.map((c,i)=>`<span>${i+1}. ${UPS[sel.kind][i][c].n}</span>`).join('')}</div>`;
       const st=sel.ups.length;
-      if(st<6){const cost=upCost(sel.kind,st);h+=`<div class="ups">${['A','B'].map((c,i)=>{const u=UPS[sel.kind][st][i];
-        return`<button class="up" data-a="up" data-c="${i}" ${G.coins<cost?'disabled':''}><span class="k">強化 ${st+1}/6 · ${c}</span><b>${u.n}</b><span class="d">${u.d}</span><span class="c">${cost} コイン</span></button>`;}).join('')}</div>`;}
+      if(st<6){const cost=upCost(sel.kind,st),all=bulkMates(sel).length,mates=bulkTargets(sel).length,bulk=UI.bulk&&all>1,can=Math.min(mates,Math.floor(G.coins/cost));
+        h+=`<div class="ups">${['A','B'].map((c,i)=>{const u=UPS[sel.kind][st][i];
+        return`<button class="up" data-a="up" data-c="${i}" ${G.coins<cost?'disabled':''}><span class="k">強化 ${st+1}/6 · ${c}</span><b>${u.n}</b><span class="d">${u.d}</span><span class="c">${bulk?`${Math.max(can,0)}/${mates}台 · ${cost*Math.max(can,1)} コイン`:`${cost} コイン`}</span></button>`;}).join('')}</div>`;
+        h+=`<button class="bulk${UI.bulk?' on':''}" data-a="bulk"><span class="sw"></span>一斉強化 <small>${all>1?(UI.bulk?`${mates}/${all}台を選択中`:`同じ段階の${t.name}${sel.kind==='wall'?'':'タワー'} ${all}台`):'同じ段階の仲間がいません'}</small></button>${UI.bulk&&all>1?`<div class="bhint">盤面をなぞって囲むか、同じタワーをタップして選べます</div>`:''}`;}
       else h+=`<div class="maxed">最大強化に到達</div>`;
     }
     P.innerHTML=h+'</div>';
@@ -1395,7 +1421,7 @@ function panel(){
     const items=[...Object.keys(TD).map(k=>({k,...TD[k]})),{k:'wall',...WALL}];
     let h='<div class="palette">'+items.map(it=>`<button class="pal ${UI.kind===it.k?'sel':''}" data-a="pick" data-k="${it.k}" ${G.coins<it.cost?'disabled':''}><span class="g" style="color:${it.col}">${it.g}</span><span class="nm">${it.sn||it.name}</span><span class="c">${it.cost}</span></button>`).join('')+'</div>';
     const cur=UI.kind?(UI.kind==='wall'?WALL:TD[UI.kind]):null;
-    h+=`<div class="hint">${cur?`<b>${cur.name}</b>：${cur.desc}。${'タップで1つ、長押しで黄色い線を引いて並べて置ける。'}`:'タワーを選んでマスをタップ。置いたタワーをタップで強化・売却。'}</div>`;
+    h+=`<div class="hint">${cur?`<b>${cur.name}</b>：${cur.desc}。${'タップで1つ、長押しで黄色い線を引いて並べて置けます。'}`:'タワーを選んでマスをタップしてください。置いたタワーをタップすると強化・売却できます。'}</div>`;
     P.innerHTML=h;
   }
   hud();
@@ -1407,7 +1433,8 @@ $('panel').addEventListener('click',ev=>{
   else if(a==='pick'){snd('tick');UI.kind=UI.kind===t.dataset.k?null:t.dataset.k;UI.sel=null;}
   else if(a==='close'){UI.sel=null;}
   else if(a==='sell'&&UI.sel){sell(UI.sel);}
-  else if(a==='up'&&UI.sel){upgrade(UI.sel,+t.dataset.c);}
+  else if(a==='up'&&UI.sel){if(UI.bulk)upgradeAll(UI.sel,+t.dataset.c);else upgrade(UI.sel,+t.dataset.c);}
+  else if(a==='bulk'){UI.bulk=!UI.bulk;snd('tick');try{localStorage.setItem('ztd.bulk',UI.bulk?'1':'0');}catch(e){}}
   UI.panelKey='';panel();
 });
 /* line placement: with a wall or tower selected, long-press (or drag) on an empty cell to stretch a yellow line;
@@ -1457,10 +1484,48 @@ cv.addEventListener('pointerdown',ev=>{
   const b=cellB(c,row);
   if(UI.kind&&!b){if(LN.on)return;Object.assign(LN,{on:true,line:false,id:ev.pointerId,c0:c,r0:row,c1:c,r1:row});try{cv.setPointerCapture(ev.pointerId);}catch(e){}
     clearTimeout(LN.t);LN.t=setTimeout(startLine,320);return;}
-  if(b){UI.sel=UI.sel===b?null:b;UI.kind=null;}
+  if(UI.kind){tapCell(b);return;}
+  // no tool selected: wait to see if this is a tap or a drag that draws a selection box
+  if(BX.on)return;Object.assign(BX,{on:true,box:false,id:ev.pointerId,c0:c,r0:row,c1:c,r1:row});try{cv.setPointerCapture(ev.pointerId);}catch(e){}
+});
+function tapCell(b){
+  const cur=UI.sel&&!UI.sel.dead?UI.sel:null;
+  if(b&&UI.bulk&&cur&&b!==cur&&b.kind===cur.kind&&b.ups.length===cur.ups.length&&cur.ups.length<6){
+    if(UI.off.has(b.id))UI.off.delete(b.id);else UI.off.add(b.id);snd('tick');}
+  else if(b){UI.sel=UI.sel===b?null:b;UI.kind=null;UI.off.clear();}
   else UI.sel=null;
   UI.panelKey='';panel();
+}
+/* box select for bulk upgrade: drag a rectangle over the board; the biggest group of same kind + same stage inside it
+   (or the selected tower's group, if any of it is inside) becomes the bulk-upgrade selection */
+const BX={on:false,box:false,id:null,c0:0,r0:0,c1:0,r1:0};
+const boxRect=()=>[Math.min(BX.c0,BX.c1),Math.min(BX.r0,BX.r1),Math.max(BX.c0,BX.c1),Math.max(BX.r0,BX.r1)];
+function boxGroup(){const[x0,y0,x1,y1]=boxRect(),inside=G.bs.filter(o=>!o.dead&&o.ups.length<6&&o.c>=x0&&o.c<=x1&&o.r>=y0&&o.r<=y1);
+  if(!inside.length)return null;const groups={};for(const o of inside)(groups[o.kind+':'+o.ups.length]=groups[o.kind+':'+o.ups.length]||[]).push(o);
+  const cur=UI.sel&&!UI.sel.dead?UI.sel:null,ck=cur&&cur.kind+':'+cur.ups.length;
+  const list=(ck&&groups[ck])?groups[ck]:Object.values(groups).sort((p,q)=>q.length-p.length||(p[0].kind==='wall')-(q[0].kind==='wall'))[0];
+  const lead=cur&&list.includes(cur)?cur:list[0];return{lead,list};}
+cv.addEventListener('pointermove',ev=>{
+  if(!BX.on||ev.pointerId!==BX.id||!G)return;let[c,row]=cellOf(ev);c=Math.max(0,Math.min(COLS-1,c));row=Math.max(0,Math.min(ROWS-1,row));
+  if(c===BX.c1&&row===BX.r1)return;BX.c1=c;BX.r1=row;if(!BX.box){BX.box=true;snd('tick');}
 });
+function endBox(ev,cancel){
+  if(!BX.on||(ev&&ev.pointerId!==BX.id))return;BX.on=false;if(!G||cancel){BX.box=false;return;}
+  if(!BX.box){tapCell(cellB(BX.c0,BX.r0));return;}
+  BX.box=false;const g=boxGroup();
+  if(!g){snd('err');addFx({t:'txt',x:BX.c1+.5,y:BX.r1+.5,s:'強化できるものがない',life:.8,max:.8,col:'#e0503f'});UI.panelKey='';panel();return;}
+  UI.sel=g.lead;UI.kind=null;UI.bulk=true;try{localStorage.setItem('ztd.bulk','1');}catch(e){}
+  UI.off=new Set(bulkMates(g.lead).filter(o=>!g.list.includes(o)).map(o=>o.id));snd('up');
+  addFx({t:'txt',x:g.lead.x,y:g.lead.y-.6,s:`${g.list.length}台を選択`,life:.9,max:.9,col:'#ffd640'});UI.panelKey='';panel();
+}
+cv.addEventListener('pointerup',ev=>endBox(ev));cv.addEventListener('pointercancel',ev=>endBox(ev,true));
+cv.addEventListener('lostpointercapture',ev=>{if(BX.on&&ev.pointerId===BX.id)endBox(ev);});
+function drawBox(){if(!BX.on||!BX.box||!G)return;const[x0,y0,x1,y1]=boxRect(),g=boxGroup();
+  if(g)for(const o of g.list){ctx.fillStyle='rgba(255,214,64,.22)';rr(o.c+.05,o.r+.05,.9,.9,.12);ctx.fill();}
+  ctx.fillStyle='rgba(255,214,64,.08)';ctx.fillRect(x0,y0,x1-x0+1,y1-y0+1);
+  ctx.strokeStyle='#ffd640';ctx.lineWidth=.05;ctx.setLineDash([.18,.1]);ctx.strokeRect(x0+.03,y0+.03,x1-x0+.94,y1-y0+.94);ctx.setLineDash([]);
+  const label=g?`${(g.lead.kind==='wall'?WALL:TD[g.lead.kind]).name} ${g.list.length}台`:'強化できるものがない',lx=Math.min(COLS-1.6,Math.max(1.6,(x0+x1+1)/2)),ly=y0>0?y0-.3:y1+1.4;
+  ctx.fillStyle='rgba(16,14,12,.85)';rr(lx-1.5,ly-.32,3,.5,.14);ctx.fill();txt(label,lx,ly,.3,g?'#ffd640':'#e0503f','center','"Zen Kaku Gothic New",sans-serif');}
 cv.addEventListener('contextmenu',ev=>ev.preventDefault());
 
 /* ---------- creative: spawn any enemy ---------- */
@@ -1692,7 +1757,7 @@ function rankRow(L,i,v,me){const li=document.createElement('li');if(me)li.classN
   li.append(n,nm,sc);L.appendChild(li);}
 async function loadRanking(){
   if(supaOn()){$('ovRank').hidden=false;const L=$('rList'),N=$('rNote');L.innerHTML='';N.textContent='読み込み中…';
-    try{const rows=await supaLoad();if(!rows.length){N.textContent='まだ記録がありません。最初の記録を残そう。';return;}N.textContent='上位 '+rows.length+' 名';rows.forEach((v,i)=>rankRow(L,i,v,v.player===playerId));}
+    try{const rows=await supaLoad();if(!rows.length){N.textContent='まだ記録がありません。最初の記録を残しましょう。';return;}N.textContent='上位 '+rows.length+' 名';rows.forEach((v,i)=>rankRow(L,i,v,v.player===playerId));}
     catch(e){N.textContent='ランキングを読み込めませんでした。通信状態を確かめて開き直してください。';}return;}
   $('ovRank').hidden=false;const L=$('rList'),N=$('rNote');L.innerHTML='';N.textContent='読み込み中…';
   for(let i=0;i<40&&!RK.ready;i++)await new Promise(r=>setTimeout(r,250));
@@ -1700,7 +1765,7 @@ async function loadRanking(){
   try{
     const snap=await RK.db.collection('scores').orderBy('score','desc').limit(50).get();
     const tail=RK.why==='readonly'?' · '+WHY.readonly:'';
-    if(snap.empty){N.textContent='まだ記録がありません。最初の記録を残そう。'+tail;return;}
+    if(snap.empty){N.textContent='まだ記録がありません。最初の記録を残しましょう。'+tail;return;}
     N.textContent='上位 '+snap.size+' 名'+tail;
     snap.docs.forEach((d,i)=>{const v=d.data()||{};const li=document.createElement('li');if(d.id===RK.uid)li.className='me';
       const n=document.createElement('span');n.className='n';n.textContent=i+1;
@@ -1734,12 +1799,13 @@ async function submitScore(){
 const VERSION='1.1';
 const NEWS=[
   {v:'1.1',d:'2026年10月19日',items:[
-    '<b>線状設置</b>：塀やタワーを選んで空いたマスを長押しすると黄色い線が出る。指を動かして線を伸ばし、離すと線の上にまとめて置ける',
-    '<b>巨大基地</b>：ゾンビの基地が5つそろうと合体する。ウェーブが始まるたびにボスが1体出てくる']},
+    '<b>線状設置</b>：塀やタワーを選んで空いたマスを長押しすると、黄色い線が出ます。指を動かして線を伸ばし、離すと線の上にまとめて置けます',
+    '<b>一斉強化</b>：強化ボタンの下のスイッチをオンにすると、同じ種類・同じ段階のタワーをまとめて強化できます。盤面を指でなぞって囲むか、1台ずつタップして、強化するタワーを選べます',
+    '<b>巨大基地</b>：ゾンビの基地が5つそろうと合体します。ウェーブが始まるたびにボスが1体出てきます']},
   {v:'1.0',d:'2026年10月19日',items:[
-    '<b>ビルダーを追加</b>：歩きながらゾンビの建物を建てる。建物が8個集まるとゾンビの基地になる',
-    '<b>凶暴化</b>：ウェーブ16からゾンビが強くなり、精鋭が現れる',
-    '<b>続きから遊べる</b>：ウェーブの合間に自動で保存され、タイトルの「続きから」で再開できる']},
+    '<b>ビルダーを追加</b>：歩きながらゾンビの建物を建てます。建物が8個集まるとゾンビの基地になります',
+    '<b>凶暴化</b>：ウェーブ16からゾンビが強くなり、精鋭が現れます',
+    '<b>続きから遊べる</b>：ウェーブの合間に自動で保存され、タイトルの「続きから」で再開できます']},
 ];
 $('nList').innerHTML=NEWS.map(n=>`<section><div class="vh"><b>v${n.v}</b></div><ul>${n.items.map(i=>`<li>${i}</li>`).join('')}</ul></section>`).join('');
 $('tVer').textContent='バージョン '+VERSION;
@@ -1779,9 +1845,9 @@ function gameOver(delay=700){
   G.over=true;clearSave();snd('over');const best=LS.get('ztd.best',0);if(!isCreative()&&G.score>best)LS.set('ztd.best',Math.floor(G.score));
   $('oScore').textContent=fmt(G.score);$('oWave').textContent=G.wave;$('oKills').textContent=G.kills;
   $('oName').value=LS.get('ztd.name','');$('oNote').textContent='';$('oSubmit').disabled=false;$('oSubmit').textContent='ランキングに登録';
-  const cr=isCreative();$('oSubmit').hidden=cr;$('oName').hidden=cr;document.querySelector('label[for=oName]').hidden=cr;if(cr)$('oNote').textContent='クリエイティブモードの記録はランキングに登録されない。';
+  const cr=isCreative();$('oSubmit').hidden=cr;$('oName').hidden=cr;document.querySelector('label[for=oName]').hidden=cr;if(cr)$('oNote').textContent='クリエイティブモードの記録はランキングに登録されません。';
   $('oDiff').textContent='難易度：'+D().name;
-  $('ovOver').querySelector('h2').textContent=G.hp>0?'防衛を終了した':'町が陥落した';
+  $('ovOver').querySelector('h2').textContent=G.hp>0?'防衛を終了しました':'町が陥落しました';
   setTimeout(()=>{$('ovOver').hidden=false;},delay);
 }
 $('tCont').onclick=()=>{const sv=loadSave();if(!sv)return;$('ovTitle').hidden=true;restore(sv);UI.panelKey='';panel();};
@@ -1817,13 +1883,13 @@ const HELPZ=[
   ['bossbuilder','ボスビルダー','ボス（ウェーブ10から）。3.5秒ごとに最上級の建物（赤い冠・耐久2.3倍・効果1.8倍）を建て、15秒ごとにビルダーを呼び寄せる'],
 ];
 const HELPS=[
-  ['nest','回復の巣','周りのゾンビを回復し続ける'],
-  ['hive','ゾンビの巣','ウェーブ中、ちびゾンビが湧く（1ウェーブ6体まで）'],
-  ['swamp','毒の沼','周りのタワーと塀を少しずつ溶かす'],
-  ['tur','骨の砲台','2.6マス以内のタワーや塀に骨の弾を撃つ'],
-  ['blight','腐敗の苗床','根を張ったマスにはタワーも塀も置けない（ビルダーだけが建てられる）。根は8秒ごとに少しずつ広がる。壊すと根も消える'],
-  ['mega','巨大基地','マップ上にゾンビの基地が5つそろうと合体してできる。ウェーブが始まるたびにボスが1体出てくる。とても硬い。壊すと4000コイン'],
-  ['base','ゾンビの基地','ゾンビの建物が半径2マス以内に8個集まると合体してできる。とても硬く、5秒ごとにゾンビが無制限に湧き続ける（ウェーブの合間も）。壊すと750コイン'],
+  ['nest','回復の巣','周りのゾンビを回復し続けます'],
+  ['hive','ゾンビの巣','ウェーブ中、ちびゾンビが湧きます（1ウェーブ6体まで）'],
+  ['swamp','毒の沼','周りのタワーと塀を少しずつ溶かします'],
+  ['tur','骨の砲台','2.6マス以内のタワーや塀に骨の弾を撃ちます'],
+  ['blight','腐敗の苗床','根を張ったマスにはタワーも塀も置けません（ビルダーだけが建てられます）。根は8秒ごとに少しずつ広がります。壊すと根も消えます'],
+  ['mega','巨大基地','マップ上にゾンビの基地が5つそろうと、合体してできます。ウェーブが始まるたびにボスが1体出てきます。とても硬く、壊すと4000コインもらえます'],
+  ['base','ゾンビの基地','ゾンビの建物が半径2マス以内に8個集まると、合体してできます。とても硬く、5秒ごとにゾンビが無制限に湧き続けます（ウェーブの合間も）。壊すと750コインもらえます'],
 ];
 const helpRow=(k,n,d)=>`<div><canvas data-k="${k}" width="88" height="88"></canvas><span><b>${n}</b>：${d}</span></div>`;
 $('hEnemies').innerHTML=HELPZ.map(r=>helpRow(...r)).join('');
